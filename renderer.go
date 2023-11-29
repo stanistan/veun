@@ -16,12 +16,17 @@ type AsRenderable interface {
 }
 
 func Render(r AsRenderable) (template.HTML, error) {
-	rr, err := r.Renderable()
+	renderable, err := r.Renderable()
 	if err != nil {
-		return template.HTML(""), err
+		return handleRenderError(err, r)
 	}
 
-	return render(rr)
+	out, err := render(renderable)
+	if err != nil {
+		return handleRenderError(err, r)
+	}
+
+	return out, nil
 }
 
 func render(r Renderable) (template.HTML, error) {
