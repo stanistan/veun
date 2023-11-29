@@ -6,14 +6,25 @@ import (
 	"html/template"
 )
 
-type RenderFunc func(r Renderable) (template.HTML, error)
-
 type Renderable interface {
 	Template() (*template.Template, error)
 	TemplateData() (any, error)
 }
 
-func Render(r Renderable) (template.HTML, error) {
+type AsRenderable interface {
+	Renderable() (Renderable, error)
+}
+
+func Render(r AsRenderable) (template.HTML, error) {
+	rr, err := r.Renderable()
+	if err != nil {
+		return template.HTML(""), err
+	}
+
+	return render(rr)
+}
+
+func render(r Renderable) (template.HTML, error) {
 	var empty template.HTML
 
 	tpl, err := r.Template()

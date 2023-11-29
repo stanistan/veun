@@ -4,7 +4,7 @@ import "html/template"
 
 type View struct {
 	Tpl   *template.Template
-	Slots map[string]Renderable
+	Slots map[string]AsRenderable
 	Data  any
 }
 
@@ -16,7 +16,11 @@ func (v View) TemplateData() (any, error) {
 	return v.Data, nil
 }
 
-func tplWithRealSlotFunc(tpl *template.Template, slots map[string]Renderable) *template.Template {
+func (v View) Renderable() (Renderable, error) {
+	return v, nil
+}
+
+func tplWithRealSlotFunc(tpl *template.Template, slots map[string]AsRenderable) *template.Template {
 	return tpl.Funcs(template.FuncMap{
 		"slot": func(name string) (template.HTML, error) {
 			slot, ok := slots[name]

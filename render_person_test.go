@@ -34,6 +34,10 @@ func (v *personView) TemplateData() (any, error) {
 	return v.Person, nil
 }
 
+func (v *personView) Renderable() (veun.Renderable, error) {
+	return v, nil
+}
+
 func TestRenderPerson(t *testing.T) {
 	html, err := veun.Render(PersonView(Person{Name: "Stan"}))
 	assert.NoError(t, err)

@@ -12,7 +12,7 @@ import (
 func TestRenderContainerAsView(t *testing.T) {
 	html, err := Render(View{
 		Tpl: containerViewTpl,
-		Slots: map[string]Renderable{
+		Slots: map[string]AsRenderable{
 			"heading": ChildView1{},
 			"body":    ChildView2{},
 		},
