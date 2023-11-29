@@ -20,22 +20,12 @@ func PersonView(person Person) *personView {
 	return &personView{Person: person}
 }
 
-var _ veun.Renderable = &personView{}
-
 var personViewTpl = template.Must(
 	template.New("PersonView").Parse(`<div>Hi, {{ .Name }}.</div>`),
 )
 
-func (v *personView) Template() (*template.Template, error) {
-	return personViewTpl, nil
-}
-
-func (v *personView) TemplateData() (any, error) {
-	return v.Person, nil
-}
-
 func (v *personView) Renderable() (veun.Renderable, error) {
-	return v, nil
+	return veun.View{Tpl: personViewTpl, Data: v.Person}, nil
 }
 
 func TestRenderPerson(t *testing.T) {

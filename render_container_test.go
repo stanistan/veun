@@ -53,29 +53,13 @@ var childViewTemplate = template.Must(
 type ChildView1 struct{}
 
 func (v ChildView1) Renderable() (Renderable, error) {
-	return v, nil
-}
-
-func (v ChildView1) Template() (*template.Template, error) {
-	return childViewTemplate, nil
-}
-
-func (v ChildView1) TemplateData() (any, error) {
-	return "HEADING", nil
+	return View{Tpl: childViewTemplate, Data: "HEADING"}, nil
 }
 
 type ChildView2 struct{}
 
-func (v ChildView2) Template() (*template.Template, error) {
-	return childViewTemplate, nil
-}
-
-func (v ChildView2) TemplateData() (any, error) {
-	return "BODY", nil
-}
-
 func (v ChildView2) Renderable() (Renderable, error) {
-	return v, nil
+	return View{Tpl: childViewTemplate, Data: "BODY"}, nil
 }
 
 func TestRenderContainer(t *testing.T) {
