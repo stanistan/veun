@@ -9,13 +9,30 @@ import (
 	. "github.com/stanistan/veun"
 )
 
+func slotFuncStub(name string) (template.HTML, error) {
+	return template.HTML(""), nil
+}
+
 type ContainerView struct {
 	Heading Renderable
 	Body    Renderable
 }
 
+func mustParseTemplate(name, contents string) *template.Template {
+	return template.Must(
+		template.New(name).
+			Funcs(template.FuncMap{"slot": slotFuncStub}).
+			Parse(contents),
+	)
+}
+
+var containerViewTpl = mustParseTemplate("containerView", `<div>
+	<div class="heading">{{ slot "heading" }}</div>
+	<div class="body">{{ slot "body" }}</div>
+</div>`)
+
 func (v ContainerView) Template() (*template.Template, error) {
-	return template.New("containerView").Funcs(template.FuncMap{
+	return containerViewTpl.Funcs(template.FuncMap{
 		"slot": func(name string) (template.HTML, error) {
 			switch name {
 			case "heading":
@@ -26,10 +43,7 @@ func (v ContainerView) Template() (*template.Template, error) {
 				return template.HTML(""), nil
 			}
 		},
-	}).Parse(`<div>
-	<div class="heading">{{ slot "heading" }}</div>
-	<div class="body">{{ slot "body" }}</div>
-</div>`)
+	}), nil
 }
 
 func (v ContainerView) TemplateData() (any, error) {
