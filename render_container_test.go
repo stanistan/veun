@@ -9,24 +9,12 @@ import (
 	. "github.com/stanistan/veun"
 )
 
-func slotFuncStub(name string) (template.HTML, error) {
-	return template.HTML(""), nil
-}
-
 type ContainerView struct {
 	Heading Renderable
 	Body    Renderable
 }
 
-func mustParseTemplate(name, contents string) *template.Template {
-	return template.Must(
-		template.New(name).
-			Funcs(template.FuncMap{"slot": slotFuncStub}).
-			Parse(contents),
-	)
-}
-
-var containerViewTpl = mustParseTemplate("containerView", `<div>
+var containerViewTpl = MustParseTemplate("containerView", `<div>
 	<div class="heading">{{ slot "heading" }}</div>
 	<div class="body">{{ slot "body" }}</div>
 </div>`)
