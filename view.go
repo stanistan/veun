@@ -20,14 +20,19 @@ func (v View) Renderable() (Renderable, error) {
 	return v, nil
 }
 
-func tplWithRealSlotFunc(tpl *template.Template, slots map[string]AsRenderable) *template.Template {
+func tplWithRealSlotFunc(
+	tpl *template.Template,
+	slots map[string]AsRenderable,
+) *template.Template {
 	return tpl.Funcs(template.FuncMap{
 		"slot": func(name string) (template.HTML, error) {
 			slot, ok := slots[name]
 			if ok {
 				return Render(slot)
 			}
-			return template.HTML(""), nil
+
+			var empty template.HTML
+			return empty, nil
 		},
 	})
 }

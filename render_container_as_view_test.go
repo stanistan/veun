@@ -9,13 +9,22 @@ import (
 	. "github.com/stanistan/veun"
 )
 
+type ContainerView2 struct {
+	Heading AsRenderable
+	Body    AsRenderable
+}
+
+func (v ContainerView2) Renderable() (Renderable, error) {
+	return View{
+		Tpl:   containerViewTpl,
+		Slots: Slots{"heading": v.Heading, "body": v.Body},
+	}, nil
+}
+
 func TestRenderContainerAsView(t *testing.T) {
-	html, err := Render(View{
-		Tpl: containerViewTpl,
-		Slots: map[string]AsRenderable{
-			"heading": ChildView1{},
-			"body":    ChildView2{},
-		},
+	html, err := Render(ContainerView2{
+		Heading: ChildView1{},
+		Body:    ChildView2{},
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, template.HTML(`<div>
