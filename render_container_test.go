@@ -31,18 +31,22 @@ var containerViewTpl = mustParseTemplate("containerView", `<div>
 	<div class="body">{{ slot "body" }}</div>
 </div>`)
 
-func (v ContainerView) Template() (*template.Template, error) {
-	return containerViewTpl.Funcs(template.FuncMap{
+func tplWithRealSlotFunc(tpl *template.Template, slots map[string]Renderable) *template.Template {
+	return tpl.Funcs(template.FuncMap{
 		"slot": func(name string) (template.HTML, error) {
-			switch name {
-			case "heading":
-				return Render(v.Heading)
-			case "body":
-				return Render(v.Body)
-			default:
-				return template.HTML(""), nil
+			slot, ok := slots[name]
+			if ok {
+				return Render(slot)
 			}
+			return template.HTML(""), nil
 		},
+	})
+}
+
+func (v ContainerView) Template() (*template.Template, error) {
+	return tplWithRealSlotFunc(containerViewTpl, map[string]Renderable{
+		"heading": v.Heading,
+		"body":    v.Body,
 	}), nil
 }
 
