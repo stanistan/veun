@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/alecthomas/assert/v2"
-	"github.com/stanistan/veun"
+	. "github.com/stanistan/veun"
 )
 
 type Person struct {
@@ -24,12 +24,12 @@ var personViewTpl = template.Must(
 	template.New("PersonView").Parse(`<div>Hi, {{ .Name }}.</div>`),
 )
 
-func (v *personView) Renderable() (veun.Renderable, error) {
-	return veun.View{Tpl: personViewTpl, Data: v.Person}, nil
+func (v *personView) Renderable() (Renderable, error) {
+	return View{Tpl: personViewTpl, Data: v.Person}, nil
 }
 
 func TestRenderPerson(t *testing.T) {
-	html, err := veun.Render(PersonView(Person{Name: "Stan"}))
+	html, err := Render(PersonView(Person{Name: "Stan"}))
 	assert.NoError(t, err)
 	assert.Equal(t, html, template.HTML(`<div>Hi, Stan.</div>`))
 }
