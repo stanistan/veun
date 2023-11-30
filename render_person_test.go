@@ -1,6 +1,7 @@
 package veun_test
 
 import (
+	"context"
 	"html/template"
 	"testing"
 
@@ -24,12 +25,12 @@ var personViewTpl = template.Must(
 	template.New("PersonView").Parse(`<div>Hi, {{ .Name }}.</div>`),
 )
 
-func (v *personView) Renderable() (Renderable, error) {
+func (v *personView) Renderable(_ context.Context) (Renderable, error) {
 	return View{Tpl: personViewTpl, Data: v.Person}, nil
 }
 
 func TestRenderPerson(t *testing.T) {
-	html, err := Render(PersonView(Person{Name: "Stan"}))
+	html, err := Render(context.Background(), PersonView(Person{Name: "Stan"}))
 	assert.NoError(t, err)
 	assert.Equal(t, html, template.HTML(`<div>Hi, Stan.</div>`))
 }

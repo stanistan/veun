@@ -1,6 +1,9 @@
 package veun
 
-import "html/template"
+import (
+	"context"
+	"html/template"
+)
 
 type View struct {
 	Tpl   *template.Template
@@ -8,15 +11,15 @@ type View struct {
 	Data  any
 }
 
-func (v View) Template() (*template.Template, error) {
-	return v.Slots.addToTemplate(v.Tpl), nil
+func (v View) Template(ctx context.Context) (*template.Template, error) {
+	return v.Slots.addToTemplate(ctx, v.Tpl), nil
 }
 
-func (v View) TemplateData() (any, error) {
+func (v View) TemplateData(_ context.Context) (any, error) {
 	return v.Data, nil
 }
 
-func (v View) Renderable() (Renderable, error) {
+func (v View) Renderable(_ context.Context) (Renderable, error) {
 	return v, nil
 }
 

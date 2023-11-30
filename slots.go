@@ -1,19 +1,24 @@
 package veun
 
-import "html/template"
+import (
+	"context"
+	"html/template"
+)
 
 type Slots map[string]AsRenderable
 
-func (s Slots) renderSlot(name string) (template.HTML, error) {
-	slot, ok := s[name]
-	if ok {
-		return Render(slot)
-	}
+func (s Slots) renderSlot(ctx context.Context) func(string) (template.HTML, error) {
+	return func(name string) (template.HTML, error) {
+		slot, ok := s[name]
+		if ok {
+			return Render(ctx, slot)
+		}
 
-	var empty template.HTML
-	return empty, nil
+		var empty template.HTML
+		return empty, nil
+	}
 }
 
-func (s Slots) addToTemplate(t *template.Template) *template.Template {
-	return t.Funcs(template.FuncMap{"slot": s.renderSlot})
+func (s Slots) addToTemplate(ctx context.Context, t *template.Template) *template.Template {
+	return t.Funcs(template.FuncMap{"slot": s.renderSlot(ctx)})
 }

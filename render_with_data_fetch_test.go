@@ -1,6 +1,7 @@
 package veun_test
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"testing"
@@ -45,7 +46,7 @@ func NewExpensiveView(shouldErr bool) *ExpensiveView {
 	return &ExpensiveView{Data: dataCh, Err: errCh}
 }
 
-func (v *ExpensiveView) Renderable() (Renderable, error) {
+func (v *ExpensiveView) Renderable(_ context.Context) (Renderable, error) {
 	select {
 	case err := <-v.Err:
 		return nil, err
@@ -56,13 +57,13 @@ func (v *ExpensiveView) Renderable() (Renderable, error) {
 
 func TestViewWithChannels(t *testing.T) {
 	t.Run("successful", func(t *testing.T) {
-		html, err := Render(NewExpensiveView(false))
+		html, err := Render(context.Background(), NewExpensiveView(false))
 		assert.NoError(t, err)
 		assert.Equal(t, template.HTML(`hi success`), html)
 	})
 
 	t.Run("failed", func(t *testing.T) {
-		_, err := Render(NewExpensiveView(true))
+		_, err := Render(context.Background(), NewExpensiveView(true))
 		assert.Error(t, err)
 	})
 }

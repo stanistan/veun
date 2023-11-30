@@ -2,37 +2,38 @@ package veun
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"html/template"
 )
 
 type Renderable interface {
-	Template() (*template.Template, error)
-	TemplateData() (any, error)
+	Template(ctx context.Context) (*template.Template, error)
+	TemplateData(ctx context.Context) (any, error)
 }
 
 type AsRenderable interface {
-	Renderable() (Renderable, error)
+	Renderable(ctx context.Context) (Renderable, error)
 }
 
-func Render(r AsRenderable) (template.HTML, error) {
-	renderable, err := r.Renderable()
+func Render(ctx context.Context, r AsRenderable) (template.HTML, error) {
+	renderable, err := r.Renderable(ctx)
 	if err != nil {
-		return handleRenderError(err, r)
+		return handleRenderError(ctx, err, r)
 	}
 
-	out, err := render(renderable)
+	out, err := render(ctx, renderable)
 	if err != nil {
-		return handleRenderError(err, r)
+		return handleRenderError(ctx, err, r)
 	}
 
 	return out, nil
 }
 
-func render(r Renderable) (template.HTML, error) {
+func render(ctx context.Context, r Renderable) (template.HTML, error) {
 	var empty template.HTML
 
-	tpl, err := r.Template()
+	tpl, err := r.Template(ctx)
 	if err != nil {
 		return empty, err
 	}
@@ -41,7 +42,7 @@ func render(r Renderable) (template.HTML, error) {
 		return empty, fmt.Errorf("missing template")
 	}
 
-	data, err := r.TemplateData()
+	data, err := r.TemplateData(ctx)
 	if err != nil {
 		return empty, err
 	}

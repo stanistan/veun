@@ -1,6 +1,7 @@
 package veun_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"html/template"
@@ -15,7 +16,7 @@ type FailingView struct {
 	Err error
 }
 
-func (v FailingView) Renderable() (Renderable, error) {
+func (v FailingView) Renderable(_ context.Context) (Renderable, error) {
 	return nil, fmt.Errorf("FailingView.Renderable(): %w", v.Err)
 }
 
@@ -24,11 +25,11 @@ type FallibleView struct {
 	Child       AsRenderable
 }
 
-func (v FallibleView) Renderable() (Renderable, error) {
-	return v.Child.Renderable()
+func (v FallibleView) Renderable(ctx context.Context) (Renderable, error) {
+	return v.Child.Renderable(ctx)
 }
 
-func (v FallibleView) ErrorRenderable(err error) (AsRenderable, error) {
+func (v FallibleView) ErrorRenderable(ctx context.Context, err error) (AsRenderable, error) {
 	if v.CapturesErr == nil {
 		return nil, err
 	}
@@ -41,7 +42,7 @@ func (v FallibleView) ErrorRenderable(err error) (AsRenderable, error) {
 }
 
 func TestRenderContainerWithFailingView(t *testing.T) {
-	_, err := Render(ContainerView2{
+	_, err := Render(context.Background(), ContainerView2{
 		Heading: ChildView1{},
 		Body: FailingView{
 			Err: fmt.Errorf("construction: %w", errSomethingFailed),
@@ -52,7 +53,7 @@ func TestRenderContainerWithFailingView(t *testing.T) {
 
 func TestRenderContainerWithCapturedError(t *testing.T) {
 	t.Run("errors_bubble_out", func(t *testing.T) {
-		_, err := Render(ContainerView2{
+		_, err := Render(context.Background(), ContainerView2{
 			Heading: ChildView1{},
 			Body: FallibleView{
 				Child: FailingView{Err: errSomethingFailed},
@@ -62,7 +63,7 @@ func TestRenderContainerWithCapturedError(t *testing.T) {
 	})
 
 	t.Run("errors_can_push_replacement_views", func(t *testing.T) {
-		html, err := Render(ContainerView2{
+		html, err := Render(context.Background(), ContainerView2{
 			Heading: ChildView1{},
 			Body: FallibleView{
 				Child:       FailingView{Err: errSomethingFailed},
@@ -77,7 +78,7 @@ func TestRenderContainerWithCapturedError(t *testing.T) {
 	})
 
 	t.Run("errors_can_return_nil_views", func(t *testing.T) {
-		html, err := Render(ContainerView2{
+		html, err := Render(context.Background(), ContainerView2{
 			Heading: ChildView1{},
 			Body: FallibleView{
 				Child:       FailingView{Err: errors.New("hi")},

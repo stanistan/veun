@@ -1,6 +1,9 @@
 package veun
 
-import "html/template"
+import (
+	"context"
+	"html/template"
+)
 
 type ErrorRenderable interface {
 	// ErrorRenderable can return bubble the error
@@ -11,10 +14,10 @@ type ErrorRenderable interface {
 	// which will ignore the error entirely.
 	//
 	// Otherwise we will attempt to render next one.
-	ErrorRenderable(err error) (AsRenderable, error)
+	ErrorRenderable(ctx context.Context, err error) (AsRenderable, error)
 }
 
-func handleRenderError(err error, with any) (template.HTML, error) {
+func handleRenderError(ctx context.Context, err error, with any) (template.HTML, error) {
 	var empty template.HTML
 
 	if with == nil {
@@ -26,7 +29,7 @@ func handleRenderError(err error, with any) (template.HTML, error) {
 		return empty, err
 	}
 
-	r, err := errRenderable.ErrorRenderable(err)
+	r, err := errRenderable.ErrorRenderable(ctx, err)
 	if err != nil {
 		return empty, err
 	}
@@ -35,5 +38,5 @@ func handleRenderError(err error, with any) (template.HTML, error) {
 		return empty, nil
 	}
 
-	return Render(r)
+	return Render(ctx, r)
 }

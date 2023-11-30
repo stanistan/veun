@@ -1,6 +1,7 @@
 package veun_test
 
 import (
+	"context"
 	"html/template"
 	"testing"
 
@@ -14,7 +15,7 @@ type ContainerView2 struct {
 	Body    AsRenderable
 }
 
-func (v ContainerView2) Renderable() (Renderable, error) {
+func (v ContainerView2) Renderable(ctx context.Context) (Renderable, error) {
 	return View{
 		Tpl:   containerViewTpl,
 		Slots: Slots{"heading": v.Heading, "body": v.Body},
@@ -22,7 +23,7 @@ func (v ContainerView2) Renderable() (Renderable, error) {
 }
 
 func TestRenderContainerAsView(t *testing.T) {
-	html, err := Render(ContainerView2{
+	html, err := Render(context.Background(), ContainerView2{
 		Heading: ChildView1{},
 		Body:    ChildView2{},
 	})

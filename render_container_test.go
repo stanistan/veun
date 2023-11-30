@@ -1,6 +1,7 @@
 package veun_test
 
 import (
+	"context"
 	"html/template"
 	"testing"
 
@@ -19,30 +20,30 @@ var containerViewTpl = MustParseTemplate("containerView", `<div>
 	<div class="body">{{ slot "body" }}</div>
 </div>`)
 
-func tplWithRealSlotFunc(tpl *template.Template, slots map[string]AsRenderable) *template.Template {
+func tplWithRealSlotFunc(ctx context.Context, tpl *template.Template, slots map[string]AsRenderable) *template.Template {
 	return tpl.Funcs(template.FuncMap{
 		"slot": func(name string) (template.HTML, error) {
 			slot, ok := slots[name]
 			if ok {
-				return Render(slot)
+				return Render(ctx, slot)
 			}
 			return template.HTML(""), nil
 		},
 	})
 }
 
-func (v ContainerView) Template() (*template.Template, error) {
-	return tplWithRealSlotFunc(containerViewTpl, map[string]AsRenderable{
+func (v ContainerView) Template(ctx context.Context) (*template.Template, error) {
+	return tplWithRealSlotFunc(ctx, containerViewTpl, map[string]AsRenderable{
 		"heading": v.Heading,
 		"body":    v.Body,
 	}), nil
 }
 
-func (v ContainerView) TemplateData() (any, error) {
+func (v ContainerView) TemplateData(_ context.Context) (any, error) {
 	return nil, nil
 }
 
-func (v ContainerView) Renderable() (Renderable, error) {
+func (v ContainerView) Renderable(_ context.Context) (Renderable, error) {
 	return v, nil
 }
 
@@ -52,18 +53,18 @@ var childViewTemplate = template.Must(
 
 type ChildView1 struct{}
 
-func (v ChildView1) Renderable() (Renderable, error) {
+func (v ChildView1) Renderable(_ context.Context) (Renderable, error) {
 	return View{Tpl: childViewTemplate, Data: "HEADING"}, nil
 }
 
 type ChildView2 struct{}
 
-func (v ChildView2) Renderable() (Renderable, error) {
+func (v ChildView2) Renderable(_ context.Context) (Renderable, error) {
 	return View{Tpl: childViewTemplate, Data: "BODY"}, nil
 }
 
 func TestRenderContainer(t *testing.T) {
-	html, err := Render(&ContainerView{
+	html, err := Render(context.Background(), &ContainerView{
 		Heading: ChildView1{},
 		Body:    ChildView2{},
 	})
