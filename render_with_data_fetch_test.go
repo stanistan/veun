@@ -57,6 +57,16 @@ func (v *ExpensiveView) Renderable(ctx context.Context) (Renderable, error) {
 	}
 }
 
+type ViewWithTimeout struct {
+	Delegate AsRenderable
+	Timeout  time.Duration
+}
+
+func (v ViewWithTimeout) Renderable(ctx context.Context) (Renderable, error) {
+	ctx, _ = context.WithTimeout(ctx, v.Timeout)
+	return v.Delegate.Renderable(ctx)
+}
+
 func TestViewWithChannels(t *testing.T) {
 	t.Run("successful", func(t *testing.T) {
 		html, err := Render(context.Background(), NewExpensiveView(false, 1*time.Millisecond))
@@ -79,5 +89,17 @@ func TestViewWithChannels(t *testing.T) {
 		ctx, _ := context.WithTimeout(context.Background(), 5*time.Millisecond)
 		_, err := Render(ctx, NewExpensiveView(false, 2*time.Millisecond))
 		assert.NoError(t, err)
+	})
+
+	t.Run("with timeout and fallible", func(t *testing.T) {
+		html, err := Render(context.Background(), FallibleView{
+			Child: ViewWithTimeout{
+				Delegate: NewExpensiveView(false, 10*time.Millisecond),
+				Timeout:  2 * time.Millisecond,
+			},
+			CapturesErr: context.DeadlineExceeded,
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, template.HTML(`HEADING`), html)
 	})
 }
