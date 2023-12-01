@@ -7,15 +7,6 @@ import (
 	"html/template"
 )
 
-type Renderable interface {
-	Template(ctx context.Context) (*template.Template, error)
-	TemplateData(ctx context.Context) (any, error)
-}
-
-type AsRenderable interface {
-	Renderable(ctx context.Context) (Renderable, error)
-}
-
 func Render(ctx context.Context, r AsRenderable) (template.HTML, error) {
 	renderable, err := r.Renderable(ctx)
 	if err != nil {
