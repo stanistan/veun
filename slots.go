@@ -10,7 +10,7 @@ type Slots map[string]AsRenderable
 func (s Slots) renderSlot(ctx context.Context) func(string) (template.HTML, error) {
 	return func(name string) (template.HTML, error) {
 		slot, ok := s[name]
-		if ok {
+		if ok && slot != nil {
 			return Render(ctx, slot)
 		}
 
