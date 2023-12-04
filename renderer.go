@@ -26,7 +26,7 @@ func render(ctx context.Context, r Renderable) (template.HTML, error) {
 
 	tpl, err := r.Template(ctx)
 	if err != nil {
-		return empty, err
+		return empty, fmt.Errorf("Template: %w", err)
 	}
 
 	if tpl == nil {
@@ -35,12 +35,12 @@ func render(ctx context.Context, r Renderable) (template.HTML, error) {
 
 	data, err := r.TemplateData(ctx)
 	if err != nil {
-		return empty, err
+		return empty, fmt.Errorf("TemplateData: %w", err)
 	}
 
 	var bs bytes.Buffer
 	if err := tpl.Execute(&bs, data); err != nil {
-		return empty, err
+		return empty, fmt.Errorf("tpl.Execute: %w", err)
 	}
 
 	return template.HTML(bs.String()), nil
