@@ -8,6 +8,10 @@ import (
 )
 
 func Render(ctx context.Context, r AsRenderable) (template.HTML, error) {
+	if r == nil {
+		return template.HTML(""), nil
+	}
+
 	renderable, err := r.Renderable(ctx)
 	if err != nil {
 		return handleRenderError(ctx, err, r)
