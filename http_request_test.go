@@ -12,11 +12,9 @@ import (
 )
 
 func TestRequestBasicHandler(t *testing.T) {
-	var handler = veun.HTTPHandler{
-		veun.RequestRenderableFunc(func(r *http.Request) (veun.AsRenderable, error) {
-			return nil, nil
-		}),
-	}
+	var handler = veun.RequestHandlerFunc(func(r *http.Request) (veun.AsRenderable, error) {
+		return nil, nil
+	})
 
 	mux := http.NewServeMux()
 

@@ -20,6 +20,14 @@ func (f RequestRenderableFunc) RequestRenderable(r *http.Request) (AsRenderable,
 	return f(r)
 }
 
+func RequestHandlerFunc(r RequestRenderableFunc) http.Handler {
+	return HTTPHandler{Renderable: r}
+}
+
+func RequestHandler(r RequestRenderable) http.Handler {
+	return HTTPHandler{Renderable: r}
+}
+
 // HTTPHandler implements http.Handler for a RequestRenderable.
 type HTTPHandler struct {
 	Renderable RequestRenderable
