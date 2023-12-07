@@ -26,14 +26,31 @@ func HTML(renderable RequestRenderable) http.Handler {
 	return HTTPHandlerFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
 		v, next, err := renderable.RequestRenderable(r)
 		if err != nil {
-			return nil, next, err
+			return nil, nil, err
+		} else if v == nil {
+			return nil, next, nil
 		}
 
 		return html{Body: v}, next, nil
 	})
 }
 
+var errorViewTpl = MustParseTemplate("errorView", `Error: {{ . }}`)
+
+type errorView struct {
+	Error error
+}
+
+func (v errorView) Renderable(_ context.Context) (Renderable, error) {
+	return View{Tpl: errorViewTpl, Data: v.Error}, nil
+}
+
+func newErrorView(_ context.Context, err error) (AsRenderable, error) {
+	return errorView{Error: err}, nil
+}
+
 func TestRequestRequestHandler(t *testing.T) {
+
 	var statusCode = func(code int) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(code)
@@ -51,19 +68,22 @@ func TestRequestRequestHandler(t *testing.T) {
 		}
 	})
 
-	mux := http.NewServeMux()
-
-	mux.Handle("/empty", HTTPHandler(empty))
-	mux.Handle("/html/empty", HTML(empty))
-
-	mux.Handle("/person", HTTPHandlerFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
+	var person = RequestRenderableFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
 		name := r.URL.Query().Get("name")
 		if name == "" {
 			return nil, nil, fmt.Errorf("missing name")
 		}
 
 		return PersonView(Person{Name: name}), nil, nil
-	}))
+	})
+
+	mux := http.NewServeMux()
+
+	mux.Handle("/empty", HTTPHandler(empty))
+	mux.Handle("/html/empty", HTML(empty))
+
+	mux.Handle("/person", HTTPHandler(person, WithErrorHandlerFunc(newErrorView)))
+	mux.Handle("/html/person", HTML(person))
 
 	server := httptest.NewServer(mux)
 	defer server.Close()
@@ -116,6 +136,12 @@ func TestRequestRequestHandler(t *testing.T) {
 		assert.Equal(t, 200, code)
 	})
 
+	t.Run("person (name=)", func(t *testing.T) {
+		body, code, _ := sendRequest(t, "/person?name=")
+		assert.Equal(t, 500, code)
+		assert.Equal(t, "Error: missing name", body)
+	})
+
 	t.Run("person renders (name=someone)", func(t *testing.T) {
 		body, code, _ := sendRequest(t, "/person?name=someone")
 		assert.Equal(t, "<div>Hi, someone.</div>", body)
@@ -124,7 +150,19 @@ func TestRequestRequestHandler(t *testing.T) {
 
 	t.Run("/html/empty", func(t *testing.T) {
 		body, code, _ := sendRequest(t, "/html/empty")
-		assert.Equal(t, "<html><body></body></html>", body)
+		assert.Equal(t, "", body)
 		assert.Equal(t, 200, code)
+	})
+
+	t.Run("/html/person (name=Stan)", func(t *testing.T) {
+		body, code, _ := sendRequest(t, "/html/person?name=Stan")
+		assert.Equal(t, "<html><body><div>Hi, Stan.</div></body></html>", body)
+		assert.Equal(t, 200, code)
+	})
+
+	t.Run("/html/person (name=)", func(t *testing.T) {
+		body, code, _ := sendRequest(t, "/html/person?name=")
+		assert.Equal(t, "Internal Server Error\n", body)
+		assert.Equal(t, 500, code)
 	})
 }
