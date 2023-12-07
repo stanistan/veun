@@ -23,33 +23,33 @@ func (v html) Renderable(_ context.Context) (Renderable, error) {
 }
 
 func HTML(renderable RequestRenderable) http.Handler {
-	return RequestHandlerFunc(func(r *http.Request) (AsRenderable, error) {
-		v, err := renderable.RequestRenderable(r)
+	return RequestHandlerFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
+		v, next, err := renderable.RequestRenderable(r)
 		if err != nil {
-			return nil, err
+			return nil, next, err
 		}
 
-		return html{Body: v}, nil
+		return html{Body: v}, next, nil
 	})
 }
 
 func TestRequestRequestHandler(t *testing.T) {
-	var empty = RequestRenderableFunc(func(r *http.Request) (AsRenderable, error) {
-		return nil, nil
+	var empty = RequestRenderableFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
+		return nil, nil, nil
 	})
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/empty", RequestHandlerFunc(empty))
+	mux.Handle("/empty", RequestHandler(empty))
 	mux.Handle("/html/empty", HTML(empty))
 
-	mux.Handle("/person", RequestHandlerFunc(func(r *http.Request) (AsRenderable, error) {
+	mux.Handle("/person", RequestHandlerFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
 		name := r.URL.Query().Get("name")
 		if name == "" {
-			return nil, fmt.Errorf("missing name")
+			return nil, nil, fmt.Errorf("missing name")
 		}
 
-		return PersonView(Person{Name: name}), nil
+		return PersonView(Person{Name: name}), nil, nil
 	}))
 
 	server := httptest.NewServer(mux)

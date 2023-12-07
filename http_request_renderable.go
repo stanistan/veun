@@ -7,16 +7,16 @@ import (
 // RequestRenderable represents a method that
 // can create a view out of an http.Request.
 type RequestRenderable interface {
-	RequestRenderable(r *http.Request) (AsRenderable, error)
+	RequestRenderable(r *http.Request) (AsRenderable, http.Handler, error)
 }
 
 // RequestRenderableFunc is the function representation of a
 // RequestRenderable.
-type RequestRenderableFunc func(*http.Request) (AsRenderable, error)
+type RequestRenderableFunc func(*http.Request) (AsRenderable, http.Handler, error)
 
 // RequestRenderable conforms RequestRenderableFunc to
 // RequestRenderable interface.
-func (f RequestRenderableFunc) RequestRenderable(r *http.Request) (AsRenderable, error) {
+func (f RequestRenderableFunc) RequestRenderable(r *http.Request) (AsRenderable, http.Handler, error) {
 	return f(r)
 }
 
@@ -35,7 +35,7 @@ type HTTPHandler struct {
 
 // ServeHTTP implements http.Handler.
 func (h HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	renderable, err := h.Renderable.RequestRenderable(r)
+	renderable, _, err := h.Renderable.RequestRenderable(r)
 	if err != nil {
 		panic(err)
 	}
