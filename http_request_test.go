@@ -23,7 +23,7 @@ func (v html) Renderable(_ context.Context) (Renderable, error) {
 }
 
 func HTML(renderable RequestRenderable) http.Handler {
-	return RequestHandlerFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
+	return HTTPHandlerFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
 		v, next, err := renderable.RequestRenderable(r)
 		if err != nil {
 			return nil, next, err
@@ -53,10 +53,10 @@ func TestRequestRequestHandler(t *testing.T) {
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/empty", RequestHandler(empty))
+	mux.Handle("/empty", HTTPHandler(empty))
 	mux.Handle("/html/empty", HTML(empty))
 
-	mux.Handle("/person", RequestHandlerFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
+	mux.Handle("/person", HTTPHandlerFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
 		name := r.URL.Query().Get("name")
 		if name == "" {
 			return nil, nil, fmt.Errorf("missing name")

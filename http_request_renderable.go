@@ -20,21 +20,21 @@ func (f RequestRenderableFunc) RequestRenderable(r *http.Request) (AsRenderable,
 	return f(r)
 }
 
-func RequestHandlerFunc(r RequestRenderableFunc) http.Handler {
-	return HTTPHandler{Renderable: r}
+func HTTPHandlerFunc(r RequestRenderableFunc) http.Handler {
+	return handler{Renderable: r}
 }
 
-func RequestHandler(r RequestRenderable) http.Handler {
-	return HTTPHandler{Renderable: r}
+func HTTPHandler(r RequestRenderable) http.Handler {
+	return handler{Renderable: r}
 }
 
-// HTTPHandler implements http.Handler for a RequestRenderable.
-type HTTPHandler struct {
+// handler implements http.Handler for a RequestRenderable.
+type handler struct {
 	Renderable RequestRenderable
 }
 
 // ServeHTTP implements http.Handler.
-func (h HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	renderable, next, err := h.Renderable.RequestRenderable(r)
 	if err != nil {
 		panic(err)
@@ -53,5 +53,4 @@ func (h HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-
 }
