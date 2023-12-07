@@ -35,7 +35,7 @@ type HTTPHandler struct {
 
 // ServeHTTP implements http.Handler.
 func (h HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	renderable, _, err := h.Renderable.RequestRenderable(r)
+	renderable, next, err := h.Renderable.RequestRenderable(r)
 	if err != nil {
 		panic(err)
 	}
@@ -45,8 +45,13 @@ func (h HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
+	if next != nil {
+		next.ServeHTTP(w, r)
+	}
+
 	_, err = w.Write([]byte(html))
 	if err != nil {
 		panic(err)
 	}
+
 }

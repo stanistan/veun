@@ -34,8 +34,21 @@ func HTML(renderable RequestRenderable) http.Handler {
 }
 
 func TestRequestRequestHandler(t *testing.T) {
+	var statusCode = func(code int) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(code)
+		})
+	}
+
 	var empty = RequestRenderableFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
-		return nil, nil, nil
+		switch r.URL.Query().Get("not_found") {
+		case "default":
+			return nil, http.NotFoundHandler(), nil
+		case "nil_404":
+			return nil, statusCode(http.StatusNotFound), nil
+		default:
+			return nil, nil, nil
+		}
 	})
 
 	mux := http.NewServeMux()
@@ -83,6 +96,18 @@ func TestRequestRequestHandler(t *testing.T) {
 		body, code, _ := sendRequest(t, "/empty")
 		assert.Equal(t, "", body)
 		assert.Equal(t, 200, code)
+	})
+
+	t.Run("empty handler can 404", func(t *testing.T) {
+		body, code, _ := sendRequest(t, "/empty?not_found=default")
+		assert.Equal(t, "404 page not found\n", body)
+		assert.Equal(t, 404, code)
+	})
+
+	t.Run("empty handler can 404 and nil", func(t *testing.T) {
+		body, code, _ := sendRequest(t, "/empty?not_found=nil_404")
+		assert.Equal(t, "", body)
+		assert.Equal(t, 404, code)
 	})
 
 	t.Run("person renders (name=Stan)", func(t *testing.T) {
