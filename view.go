@@ -2,6 +2,7 @@ package veun
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 	"io/fs"
 )
@@ -13,6 +14,10 @@ type View struct {
 }
 
 func (v View) Template(ctx context.Context) (*template.Template, error) {
+	if v.Tpl == nil {
+		return nil, fmt.Errorf("template missing")
+	}
+
 	return v.Slots.addToTemplate(ctx, v.Tpl), nil
 }
 
