@@ -63,7 +63,9 @@ type ViewWithTimeout struct {
 }
 
 func (v ViewWithTimeout) Renderable(ctx context.Context) (Renderable, error) {
-	ctx, _ = context.WithTimeout(ctx, v.Timeout)
+	ctx, cancel := context.WithTimeout(ctx, v.Timeout)
+	defer cancel()
+
 	return v.Delegate.Renderable(ctx)
 }
 
@@ -80,13 +82,17 @@ func TestViewWithChannels(t *testing.T) {
 	})
 
 	t.Run("context timed out", func(t *testing.T) {
-		ctx, _ := context.WithTimeout(context.Background(), 1*time.Millisecond)
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Millisecond)
+		defer cancel()
+
 		_, err := Render(ctx, NewExpensiveView(false, 2*time.Millisecond))
 		assert.Error(t, err)
 	})
 
 	t.Run("context timeout not reached", func(t *testing.T) {
-		ctx, _ := context.WithTimeout(context.Background(), 5*time.Millisecond)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+		defer cancel()
+
 		_, err := Render(ctx, NewExpensiveView(false, 2*time.Millisecond))
 		assert.NoError(t, err)
 	})

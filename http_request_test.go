@@ -3,7 +3,7 @@ package veun_test
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -101,7 +101,7 @@ func TestRequestRequestHandler(t *testing.T) {
 
 		defer res.Body.Close()
 
-		data, err := ioutil.ReadAll(res.Body)
+		data, err := io.ReadAll(res.Body)
 		assert.NoError(t, err)
 
 		return string(data), res.StatusCode, nil
