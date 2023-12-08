@@ -49,7 +49,7 @@ func newErrorView(_ context.Context, err error) (AsRenderable, error) {
 	return errorView{Error: err}, nil
 }
 
-func TestRequestRequestHandler(t *testing.T) {
+func TestHTTPHandler(t *testing.T) {
 
 	var statusCode = func(code int) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
