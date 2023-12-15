@@ -17,7 +17,7 @@ func Render(ctx context.Context, r AsRenderable) (template.HTML, error) {
 		return handleRenderError(ctx, err, r)
 	}
 
-	out, err := render(ctx, renderable)
+	out, err := renderable.RenderToHTML(ctx)
 	if err != nil {
 		return handleRenderError(ctx, err, r)
 	}
@@ -25,21 +25,11 @@ func Render(ctx context.Context, r AsRenderable) (template.HTML, error) {
 	return out, nil
 }
 
-func render(ctx context.Context, r Renderable) (template.HTML, error) {
+func RenderToHTML(tpl *template.Template, data any) (template.HTML, error) {
 	var empty template.HTML
-
-	tpl, err := r.Template(ctx)
-	if err != nil {
-		return empty, fmt.Errorf("Template(): %w", err)
-	}
 
 	if tpl == nil {
 		return empty, fmt.Errorf("missing template")
-	}
-
-	data, err := r.TemplateData(ctx)
-	if err != nil {
-		return empty, fmt.Errorf("TemplateData(): %w", err)
 	}
 
 	var bs bytes.Buffer

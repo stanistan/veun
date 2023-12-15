@@ -5,14 +5,10 @@ import (
 	"html/template"
 )
 
-// Renderable represents any struct that can be rendered
-// in the Render function.
+// Renderable represents anything that can be rendered
+// to HTML.
 type Renderable interface {
-	// Template provides the template object / parsed and compiled,
-	// that Render will execute given a context.
-	Template(ctx context.Context) (*template.Template, error)
-	// TemplateData provides the data to the template given a context.
-	TemplateData(ctx context.Context) (any, error)
+	RenderToHTML(ctx context.Context) (template.HTML, error)
 }
 
 type AsRenderable interface {

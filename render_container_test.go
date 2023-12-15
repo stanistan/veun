@@ -32,15 +32,15 @@ func tplWithRealSlotFunc(ctx context.Context, tpl *template.Template, slots map[
 	})
 }
 
-func (v ContainerView) Template(ctx context.Context) (*template.Template, error) {
-	return tplWithRealSlotFunc(ctx, containerViewTpl, map[string]AsRenderable{
-		"heading": v.Heading,
-		"body":    v.Body,
-	}), nil
-}
-
-func (v ContainerView) TemplateData(_ context.Context) (any, error) {
-	return nil, nil
+func (v ContainerView) RenderToHTML(ctx context.Context) (template.HTML, error) {
+	return RenderToHTML(tplWithRealSlotFunc(
+		ctx,
+		containerViewTpl,
+		map[string]AsRenderable{
+			"heading": v.Heading,
+			"body":    v.Body,
+		},
+	), nil)
 }
 
 func (v ContainerView) Renderable(_ context.Context) (Renderable, error) {
