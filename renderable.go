@@ -5,8 +5,7 @@ import (
 	"html/template"
 )
 
-// Renderable represents anything that can be rendered
-// to HTML.
+// Renderable represents anything that can be rendered to HTML.
 type Renderable interface {
 	RenderToHTML(ctx context.Context) (template.HTML, error)
 }

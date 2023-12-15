@@ -6,14 +6,6 @@ import (
 )
 
 type ErrorRenderable interface {
-	// ErrorRenderable can return bubble the error
-	// back up, which will continue to fail the render
-	// the same as it did before.
-	//
-	// It can also return nil for Renderable,
-	// which will ignore the error entirely.
-	//
-	// Otherwise we will attempt to render next one.
 	ErrorRenderable(ctx context.Context, err error) (AsRenderable, error)
 }
 
