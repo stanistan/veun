@@ -34,3 +34,11 @@ func TestRenderPerson(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, html, template.HTML(`<div>Hi, Stan.</div>`))
 }
+
+func BenchmarkRender(b *testing.B) {
+	ctx := context.Background()
+	person := PersonView(Person{Name: "Stan"})
+	for i := 0; i < b.N; i++ {
+		_, _ = Render(ctx, person)
+	}
+}
