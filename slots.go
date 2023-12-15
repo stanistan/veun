@@ -20,5 +20,9 @@ func (s Slots) renderSlot(ctx context.Context) func(string) (template.HTML, erro
 }
 
 func (s Slots) addToTemplate(ctx context.Context, t *template.Template) *template.Template {
+	if t == nil {
+		return nil
+	}
+
 	return t.Funcs(template.FuncMap{"slot": s.renderSlot(ctx)})
 }
