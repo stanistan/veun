@@ -21,14 +21,8 @@ func (vs Views) Renderable(ctx context.Context) (Renderable, error) {
 
 func (vs Views) RenderToHTML(ctx context.Context) (template.HTML, error) {
 	var out template.HTML
-
 	for _, v := range vs {
-		r, err := v.Renderable(ctx)
-		if err != nil {
-			return template.HTML(""), err
-		}
-
-		html, err := r.RenderToHTML(ctx)
+		html, err := Render(ctx, v)
 		if err != nil {
 			return template.HTML(""), err
 		}
