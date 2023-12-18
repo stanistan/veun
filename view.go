@@ -13,15 +13,13 @@ type View struct {
 }
 
 func (v View) RenderToHTML(ctx context.Context) (template.HTML, error) {
-	tpl := v.Tpl
-	if v.Tpl != nil {
-		tpl = v.Slots.addToTemplate(ctx, v.Tpl)
-	}
-
-	return RenderToHTML(tpl, v.Data)
+	return TemplateRenderable{
+		Tpl:  v.Slots.addToTemplate(ctx, v.Tpl),
+		Data: v.Data,
+	}.RenderToHTML(ctx)
 }
 
-func (v View) Renderable(_ context.Context) (Renderable, error) {
+func (v View) Renderable(ctx context.Context) (Renderable, error) {
 	return v, nil
 }
 

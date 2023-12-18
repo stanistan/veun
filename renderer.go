@@ -7,33 +7,55 @@ import (
 	"html/template"
 )
 
-func Render(ctx context.Context, r AsRenderable) (template.HTML, error) {
+func RenderToHTML(ctx context.Context, r Renderable, errHandler any) (template.HTML, error) {
+	var empty template.HTML
+
 	if r == nil {
-		return template.HTML(""), nil
+		return empty, nil
 	}
 
-	renderable, err := r.Renderable(ctx)
+	out, err := r.RenderToHTML(ctx)
 	if err != nil {
-		return handleRenderError(ctx, err, r)
-	}
-
-	out, err := renderable.RenderToHTML(ctx)
-	if err != nil {
-		return handleRenderError(ctx, err, r)
+		return handleRenderError(ctx, err, errHandler)
 	}
 
 	return out, nil
 }
 
-func RenderToHTML(tpl *template.Template, data any) (template.HTML, error) {
+func Render(ctx context.Context, v AsRenderable) (template.HTML, error) {
 	var empty template.HTML
 
-	if tpl == nil {
+	if v == nil {
+		return empty, nil
+	}
+
+	r, err := v.Renderable(ctx)
+	if err != nil {
+		return handleRenderError(ctx, err, v)
+	}
+
+	out, err := RenderToHTML(ctx, r, v)
+	if err != nil {
+		return empty, err
+	}
+
+	return out, nil
+}
+
+type TemplateRenderable struct {
+	Tpl  *template.Template
+	Data any
+}
+
+func (v TemplateRenderable) RenderToHTML(_ context.Context) (template.HTML, error) {
+	var empty template.HTML
+
+	if v.Tpl == nil {
 		return empty, fmt.Errorf("missing template")
 	}
 
 	var bs bytes.Buffer
-	if err := tpl.Execute(&bs, data); err != nil {
+	if err := v.Tpl.Execute(&bs, v.Data); err != nil {
 		return empty, fmt.Errorf("tpl.Execute(): %w", err)
 	}
 
