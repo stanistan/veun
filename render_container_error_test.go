@@ -29,12 +29,12 @@ func (v FallibleView) Renderable(ctx context.Context) (Renderable, error) {
 	return v.Child.Renderable(ctx)
 }
 
-func (v FallibleView) ErrorRenderable(ctx context.Context, err error) (AsRenderable, error) {
+func (v FallibleView) ErrorRenderable(e *Error) (AsRenderable, error) {
 	if v.CapturesErr == nil {
-		return nil, err
+		return nil, e.Err
 	}
 
-	if errors.Is(err, v.CapturesErr) {
+	if errors.Is(e.Err, v.CapturesErr) {
 		return ChildView1{}, nil
 	}
 

@@ -5,13 +5,14 @@ import (
 	"html/template"
 )
 
+// Raw represents a string view.
 type Raw string
 
+// Renderable implements AsRenderable for Raw.
 func (r Raw) Renderable(_ context.Context) (Renderable, error) { return r, nil }
 
-func (r Raw) RenderToHTML(_ context.Context) (template.HTML, error) {
-	return template.HTML(r), nil
-}
+// RenderToHTML implements Renderable for Raw.
+func (r Raw) RenderToHTML(_ context.Context) (template.HTML, error) { return template.HTML(r), nil }
 
 type Views []AsRenderable
 

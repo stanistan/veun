@@ -45,8 +45,8 @@ func (v errorView) Renderable(_ context.Context) (Renderable, error) {
 	return View{Tpl: errorViewTpl, Data: v.Error}, nil
 }
 
-func newErrorView(_ context.Context, err error) (AsRenderable, error) {
-	return errorView{Error: err}, nil
+func newErrorView(e *Error) (AsRenderable, error) {
+	return errorView{Error: e.Err}, nil
 }
 
 func TestHTTPHandler(t *testing.T) {

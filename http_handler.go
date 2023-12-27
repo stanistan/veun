@@ -73,7 +73,7 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h handler) handleError(ctx context.Context, w http.ResponseWriter, err error) {
-	html, rErr := handleRenderError(ctx, err, h.ErrorHandler)
+	html, rErr := RenderError(&Error{Err: err, ctx: ctx}, h.ErrorHandler)
 	if rErr == nil && len(html) > 0 {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte(html))
