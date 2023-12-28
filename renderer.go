@@ -2,6 +2,7 @@ package veun
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 )
 
@@ -25,7 +26,10 @@ func Render(ctx context.Context, v AsRenderable) (template.HTML, error) {
 
 	r, err := v.Renderable(ctx)
 	if err != nil {
-		return RenderError(&Error{Err: err, ctx: ctx}, v)
+		return RenderError(&Error{
+			Err: fmt.Errorf("%T.Renderable: %w", v, err),
+			ctx: ctx,
+		}, v)
 	}
 
 	out, err := RenderToHTML(ctx, r, v)

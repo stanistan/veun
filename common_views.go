@@ -25,28 +25,7 @@ func (vs Views) RenderToHTML(ctx context.Context) (template.HTML, error) {
 	for _, v := range vs {
 		html, err := Render(ctx, v)
 		if err != nil {
-			return template.HTML(""), err
-		}
-
-		out += html
-	}
-
-	return out, nil
-}
-
-type RViews []Renderable
-
-func (vs RViews) Renderable(_ context.Context) (Renderable, error) {
-	return vs, nil
-}
-
-func (vs RViews) RenderToHTML(ctx context.Context) (template.HTML, error) {
-	var out template.HTML
-
-	for _, r := range vs {
-		html, err := r.RenderToHTML(ctx)
-		if err != nil {
-			return template.HTML(""), err
+			return emptyHTML(), err
 		}
 
 		out += html

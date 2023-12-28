@@ -22,9 +22,9 @@ func (v html) Renderable(_ context.Context) (Renderable, error) {
 	return View{Tpl: htmlTpl, Slots: Slots{"body": v.Body}}, nil
 }
 
-func HTML(renderable RequestRenderable) http.Handler {
+func HTML(rh RequestHandler) http.Handler {
 	return HTTPHandlerFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
-		v, next, err := renderable.RequestRenderable(r)
+		v, next, err := rh.ViewForRequest(r)
 		if err != nil {
 			return nil, nil, err
 		} else if v == nil {
@@ -45,8 +45,8 @@ func (v errorView) Renderable(_ context.Context) (Renderable, error) {
 	return View{Tpl: errorViewTpl, Data: v.Error}, nil
 }
 
-func newErrorView(e *Error) (AsRenderable, error) {
-	return errorView{Error: e.Err}, nil
+func newErrorView(e *Error) (Renderable, error) {
+	return R(errorView{Error: e.Err}), nil
 }
 
 func TestHTTPHandler(t *testing.T) {
@@ -57,7 +57,7 @@ func TestHTTPHandler(t *testing.T) {
 		})
 	}
 
-	var empty = RequestRenderableFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
+	var empty = RequestHandlerFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
 		switch r.URL.Query().Get("not_found") {
 		case "default":
 			return nil, http.NotFoundHandler(), nil
@@ -68,7 +68,7 @@ func TestHTTPHandler(t *testing.T) {
 		}
 	})
 
-	var person = RequestRenderableFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
+	var person = RequestHandlerFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
 		name := r.URL.Query().Get("name")
 		if name == "" {
 			return nil, nil, fmt.Errorf("missing name")

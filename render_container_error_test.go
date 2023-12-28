@@ -29,7 +29,7 @@ func (v FallibleView) Renderable(ctx context.Context) (Renderable, error) {
 	return v.Child.Renderable(ctx)
 }
 
-func (v FallibleView) ErrorRenderable(e *Error) (AsRenderable, error) {
+func (v FallibleView) ViewForError(e *Error) (AsRenderable, error) {
 	if v.CapturesErr == nil {
 		return nil, e.Err
 	}

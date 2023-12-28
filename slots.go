@@ -14,7 +14,7 @@ func (s Slots) renderSlot(ctx context.Context) func(string) (template.HTML, erro
 			return emptyHTML(), nil
 		}
 
-		slot, _ := s[name]
+		slot := s[name]
 		if slot == nil {
 			return emptyHTML(), nil
 		}

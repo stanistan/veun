@@ -4,38 +4,38 @@ import (
 	"html/template"
 )
 
-type ErrorRenderable interface {
-	ErrorRenderable(e *Error) (AsRenderable, error)
+type ErrorHandler interface {
+	ViewForError(e *Error) (Renderable, error)
 }
 
-type ErrorRenderableFunc func(*Error) (AsRenderable, error)
+type ErrorHandlerFunc func(*Error) (Renderable, error)
 
-func (f ErrorRenderableFunc) ErrorRenderable(e *Error) (AsRenderable, error) {
+func (f ErrorHandlerFunc) ViewForError(e *Error) (Renderable, error) {
 	return f(e)
 }
 
-func PassThroughErrorRenderable() ErrorRenderable {
-	return ErrorRenderableFunc(func(e *Error) (AsRenderable, error) {
+func PassThroughErrorHandler() ErrorHandler {
+	return ErrorHandlerFunc(func(e *Error) (Renderable, error) {
 		return nil, e.Err
 	})
 }
 
-func MakeErrorRenderable(in any) ErrorRenderable {
-	errR, ok := in.(ErrorRenderable)
+func MakeErrorHandler(in any) ErrorHandler {
+	errR, ok := in.(ErrorHandler)
 	if !ok || in == nil {
-		return PassThroughErrorRenderable()
+		return PassThroughErrorHandler()
 	} else {
 		return errR
 	}
 }
 
 func RenderError(e *Error, with any) (template.HTML, error) {
-	v, err := MakeErrorRenderable(with).ErrorRenderable(e)
+	v, err := MakeErrorHandler(with).ViewForError(e)
 	if err != nil {
 		return emptyHTML(), err
 	}
 
-	out, err := Render(e.Context(), v)
+	out, err := RenderToHTML(e.Context(), v, nil)
 	if err != nil {
 		return emptyHTML(), err
 	}
