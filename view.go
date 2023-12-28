@@ -19,7 +19,7 @@ func (v View) AsHTML(ctx context.Context) (template.HTML, error) {
 	}.RenderToHTML(ctx)
 }
 
-func (v View) Renderable(ctx context.Context) (Renderable, error) {
+func (v View) Renderable(ctx context.Context) (HTMLRenderable, error) {
 	return v, nil
 }
 

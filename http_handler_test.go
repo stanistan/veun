@@ -18,7 +18,7 @@ type html struct {
 	Body AsRenderable
 }
 
-func (v html) Renderable(_ context.Context) (Renderable, error) {
+func (v html) Renderable(_ context.Context) (HTMLRenderable, error) {
 	return View{Tpl: htmlTpl, Slots: Slots{"body": v.Body}}, nil
 }
 
@@ -41,7 +41,7 @@ type errorView struct {
 	Error error
 }
 
-func (v errorView) Renderable(_ context.Context) (Renderable, error) {
+func (v errorView) Renderable(_ context.Context) (HTMLRenderable, error) {
 	return View{Tpl: errorViewTpl, Data: v.Error}, nil
 }
 

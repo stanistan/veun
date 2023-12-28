@@ -7,7 +7,7 @@ import (
 	"html/template"
 )
 
-func RenderToHTML(ctx context.Context, r Renderable, errHandler any) (template.HTML, error) {
+func RenderToHTML(ctx context.Context, r HTMLRenderable, errHandler any) (template.HTML, error) {
 	var empty template.HTML
 
 	if r == nil {

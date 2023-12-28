@@ -15,7 +15,7 @@ type ContainerView2 struct {
 	Body    AsRenderable
 }
 
-func (v ContainerView2) Renderable(ctx context.Context) (Renderable, error) {
+func (v ContainerView2) Renderable(ctx context.Context) (HTMLRenderable, error) {
 	return View{
 		Tpl:   containerViewTpl,
 		Slots: Slots{"heading": v.Heading, "body": v.Body},

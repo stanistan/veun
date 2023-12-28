@@ -41,7 +41,7 @@ func (v ContainerView) AsHTML(ctx context.Context) (template.HTML, error) {
 	}.RenderToHTML(ctx)
 }
 
-func (v ContainerView) Renderable(_ context.Context) (Renderable, error) {
+func (v ContainerView) Renderable(_ context.Context) (HTMLRenderable, error) {
 	return v, nil
 }
 
@@ -51,13 +51,13 @@ var childViewTemplate = template.Must(
 
 type ChildView1 struct{}
 
-func (v ChildView1) Renderable(_ context.Context) (Renderable, error) {
+func (v ChildView1) Renderable(_ context.Context) (HTMLRenderable, error) {
 	return View{Tpl: childViewTemplate, Data: "HEADING"}, nil
 }
 
 type ChildView2 struct{}
 
-func (v ChildView2) Renderable(_ context.Context) (Renderable, error) {
+func (v ChildView2) Renderable(_ context.Context) (HTMLRenderable, error) {
 	return View{Tpl: childViewTemplate, Data: "BODY"}, nil
 }
 
