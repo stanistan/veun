@@ -6,18 +6,16 @@ import (
 	"net/http"
 )
 
-// HTTPHandler constructs an http.HTTPHandler given the RequestRenderable.
-func HTTPHandler(r RequestRenderable, opts ...HandlerOption) http.Handler {
-	h := handler{Renderable: r}
+func HTTPHandler(r RequestHandler, opts ...HandlerOption) http.Handler {
+	h := handler{RequestHandler: r}
 	for _, opt := range opts {
 		opt(&h)
 	}
 	return h
 }
 
-// HTTPHandler constructs an http.HTTPHandler given the RequestRenderableFunc.
-func HTTPHandlerFunc(r RequestRenderableFunc, opts ...HandlerOption) http.Handler {
-	h := handler{Renderable: r}
+func HTTPHandlerFunc(r RequestHandlerFunc, opts ...HandlerOption) http.Handler {
+	h := handler{RequestHandler: r}
 	for _, opt := range opts {
 		opt(&h)
 	}
@@ -44,13 +42,13 @@ func WithErrorHandlerFunc(eh ErrorHandlerFunc) HandlerOption {
 
 // handler implements http.Handler for a RequestRenderable.
 type handler struct {
-	Renderable   RequestRenderable
-	ErrorHandler ErrorHandler
+	RequestHandler RequestHandler
+	ErrorHandler   ErrorHandler
 }
 
 // ServeHTTP implements http.Handler.
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	renderable, next, err := h.Renderable.RequestRenderable(r)
+	renderable, next, err := h.RequestHandler.ViewForRequest(r)
 	if err != nil {
 		h.handleError(r.Context(), w, err)
 		return
