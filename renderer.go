@@ -14,7 +14,7 @@ func RenderToHTML(ctx context.Context, r Renderable, errHandler any) (template.H
 		return empty, nil
 	}
 
-	out, err := r.RenderToHTML(ctx)
+	out, err := r.AsHTML(ctx)
 	if err != nil {
 		return handleRenderError(ctx, err, errHandler)
 	}

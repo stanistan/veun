@@ -9,7 +9,7 @@ type Raw string
 
 func (r Raw) Renderable(_ context.Context) (Renderable, error) { return r, nil }
 
-func (r Raw) RenderToHTML(_ context.Context) (template.HTML, error) {
+func (r Raw) AsHTML(_ context.Context) (template.HTML, error) {
 	return template.HTML(r), nil
 }
 
@@ -19,7 +19,7 @@ func (vs Views) Renderable(ctx context.Context) (Renderable, error) {
 	return vs, nil
 }
 
-func (vs Views) RenderToHTML(ctx context.Context) (template.HTML, error) {
+func (vs Views) AsHTML(ctx context.Context) (template.HTML, error) {
 	var out template.HTML
 	for _, v := range vs {
 		html, err := Render(ctx, v)

@@ -12,7 +12,7 @@ type View struct {
 	Data  any
 }
 
-func (v View) RenderToHTML(ctx context.Context) (template.HTML, error) {
+func (v View) AsHTML(ctx context.Context) (template.HTML, error) {
 	return TemplateRenderable{
 		Tpl:  v.Slots.addToTemplate(ctx, v.Tpl),
 		Data: v.Data,

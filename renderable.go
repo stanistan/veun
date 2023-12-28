@@ -7,7 +7,7 @@ import (
 
 // Renderable represents anything that can be rendered to HTML.
 type Renderable interface {
-	RenderToHTML(ctx context.Context) (template.HTML, error)
+	AsHTML(ctx context.Context) (template.HTML, error)
 }
 
 type AsRenderable interface {
