@@ -15,16 +15,16 @@ import (
 var htmlTpl = MustParseTemplate("html", `<html><body>{{ slot "body" }}</body></html>`)
 
 type html struct {
-	Body AsRenderable
+	Body AsR
 }
 
-func (v html) Renderable(_ context.Context) (HTMLRenderable, error) {
-	return View{Tpl: htmlTpl, Slots: Slots{"body": v.Body}}, nil
+func (v html) Renderable(_ context.Context) (*Renderable, error) {
+	return R(View{Tpl: htmlTpl, Slots: Slots{"body": R(v.Body)}}), nil
 }
 
-func HTML(renderable RequestHandler) http.Handler {
-	return HTTPHandlerFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
-		v, next, err := renderable.ViewForRequest(r)
+func HTML(rh RequestHandler) http.Handler {
+	return HTTPHandlerFunc(func(r *http.Request) (AsR, http.Handler, error) {
+		v, next, err := rh.ViewForRequest(r)
 		if err != nil {
 			return nil, nil, err
 		} else if v == nil {
@@ -41,11 +41,11 @@ type errorView struct {
 	Error error
 }
 
-func (v errorView) Renderable(_ context.Context) (HTMLRenderable, error) {
-	return View{Tpl: errorViewTpl, Data: v.Error}, nil
+func (v errorView) Renderable(_ context.Context) (*Renderable, error) {
+	return R(View{Tpl: errorViewTpl, Data: v.Error}), nil
 }
 
-func newErrorView(_ context.Context, err error) (AsRenderable, error) {
+func newErrorView(_ context.Context, err error) (AsR, error) {
 	return errorView{Error: err}, nil
 }
 
@@ -57,7 +57,7 @@ func TestHTTPHandler(t *testing.T) {
 		})
 	}
 
-	var empty = RequestHandlerFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
+	var empty = RequestHandlerFunc(func(r *http.Request) (AsR, http.Handler, error) {
 		switch r.URL.Query().Get("not_found") {
 		case "default":
 			return nil, http.NotFoundHandler(), nil
@@ -68,7 +68,7 @@ func TestHTTPHandler(t *testing.T) {
 		}
 	})
 
-	var person = RequestHandlerFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
+	var person = RequestHandlerFunc(func(r *http.Request) (AsR, http.Handler, error) {
 		name := r.URL.Query().Get("name")
 		if name == "" {
 			return nil, nil, fmt.Errorf("missing name")

@@ -5,7 +5,7 @@ import (
 	"html/template"
 )
 
-type Slots map[string]AsRenderable
+type Slots map[string]AsR
 
 func (s Slots) renderSlot(ctx context.Context) func(string) (template.HTML, error) {
 	return func(name string) (template.HTML, error) {

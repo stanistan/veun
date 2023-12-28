@@ -8,38 +8,11 @@ import (
 )
 
 func RenderToHTML(ctx context.Context, r HTMLRenderable, errHandler any) (template.HTML, error) {
-	var empty template.HTML
-
-	if r == nil {
-		return empty, nil
-	}
-
-	out, err := r.AsHTML(ctx)
-	if err != nil {
-		return handleRenderError(ctx, err, errHandler)
-	}
-
-	return out, nil
+	return (&Renderable{r: r, eh: MakeErrorHandler(errHandler)}).Render(ctx)
 }
 
-func Render(ctx context.Context, v AsRenderable) (template.HTML, error) {
-	var empty template.HTML
-
-	if v == nil {
-		return empty, nil
-	}
-
-	r, err := v.Renderable(ctx)
-	if err != nil {
-		return handleRenderError(ctx, err, v)
-	}
-
-	out, err := RenderToHTML(ctx, r, v)
-	if err != nil {
-		return empty, err
-	}
-
-	return out, nil
+func Render(ctx context.Context, v AsR) (template.HTML, error) {
+	return R(v).Render(ctx)
 }
 
 type TemplateRenderable struct {
@@ -47,7 +20,7 @@ type TemplateRenderable struct {
 	Data any
 }
 
-func (v TemplateRenderable) RenderToHTML(_ context.Context) (template.HTML, error) {
+func (v TemplateRenderable) AsHTML(_ context.Context) (template.HTML, error) {
 	var empty template.HTML
 
 	if v.Tpl == nil {

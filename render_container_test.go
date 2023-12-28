@@ -11,8 +11,7 @@ import (
 )
 
 type ContainerView struct {
-	Heading AsRenderable
-	Body    AsRenderable
+	Heading, Body AsR
 }
 
 var containerViewTpl = MustParseTemplate("containerView", `<div>
@@ -20,7 +19,7 @@ var containerViewTpl = MustParseTemplate("containerView", `<div>
 	<div class="body">{{ slot "body" }}</div>
 </div>`)
 
-func tplWithRealSlotFunc(ctx context.Context, tpl *template.Template, slots map[string]AsRenderable) *template.Template {
+func tplWithRealSlotFunc(ctx context.Context, tpl *template.Template, slots map[string]AsR) *template.Template {
 	return tpl.Funcs(template.FuncMap{
 		"slot": func(name string) (template.HTML, error) {
 			slot, ok := slots[name]
@@ -34,15 +33,15 @@ func tplWithRealSlotFunc(ctx context.Context, tpl *template.Template, slots map[
 
 func (v ContainerView) AsHTML(ctx context.Context) (template.HTML, error) {
 	return TemplateRenderable{
-		Tpl: tplWithRealSlotFunc(ctx, containerViewTpl, map[string]AsRenderable{
+		Tpl: tplWithRealSlotFunc(ctx, containerViewTpl, map[string]AsR{
 			"heading": v.Heading,
 			"body":    v.Body,
 		}),
-	}.RenderToHTML(ctx)
+	}.AsHTML(ctx)
 }
 
-func (v ContainerView) Renderable(_ context.Context) (HTMLRenderable, error) {
-	return v, nil
+func (v ContainerView) Renderable(_ context.Context) (*Renderable, error) {
+	return R(v), nil
 }
 
 var childViewTemplate = template.Must(
@@ -51,14 +50,14 @@ var childViewTemplate = template.Must(
 
 type ChildView1 struct{}
 
-func (v ChildView1) Renderable(_ context.Context) (HTMLRenderable, error) {
-	return View{Tpl: childViewTemplate, Data: "HEADING"}, nil
+func (v ChildView1) Renderable(_ context.Context) (*Renderable, error) {
+	return R(View{Tpl: childViewTemplate, Data: "HEADING"}), nil
 }
 
 type ChildView2 struct{}
 
-func (v ChildView2) Renderable(_ context.Context) (HTMLRenderable, error) {
-	return View{Tpl: childViewTemplate, Data: "BODY"}, nil
+func (v ChildView2) Renderable(_ context.Context) (*Renderable, error) {
+	return R(View{Tpl: childViewTemplate, Data: "BODY"}), nil
 }
 
 func TestRenderContainer(t *testing.T) {

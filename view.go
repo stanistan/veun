@@ -16,11 +16,7 @@ func (v View) AsHTML(ctx context.Context) (template.HTML, error) {
 	return TemplateRenderable{
 		Tpl:  v.Slots.addToTemplate(ctx, v.Tpl),
 		Data: v.Data,
-	}.RenderToHTML(ctx)
-}
-
-func (v View) Renderable(ctx context.Context) (HTMLRenderable, error) {
-	return v, nil
+	}.AsHTML(ctx)
 }
 
 func slotFuncStub(name string) (template.HTML, error) {

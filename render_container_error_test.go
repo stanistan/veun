@@ -16,20 +16,20 @@ type FailingView struct {
 	Err error
 }
 
-func (v FailingView) Renderable(_ context.Context) (HTMLRenderable, error) {
+func (v FailingView) Renderable(_ context.Context) (*Renderable, error) {
 	return nil, fmt.Errorf("FailingView.Renderable(): %w", v.Err)
 }
 
 type FallibleView struct {
 	CapturesErr error
-	Child       AsRenderable
+	Child       AsR
 }
 
-func (v FallibleView) Renderable(ctx context.Context) (HTMLRenderable, error) {
-	return v.Child.Renderable(ctx)
+func (v FallibleView) Renderable(_ context.Context) (*Renderable, error) {
+	return R(v.Child).WithErrorHandler(v), nil
 }
 
-func (v FallibleView) ViewForError(ctx context.Context, err error) (AsRenderable, error) {
+func (v FallibleView) ViewForError(ctx context.Context, err error) (AsR, error) {
 	if v.CapturesErr == nil {
 		return nil, err
 	}
