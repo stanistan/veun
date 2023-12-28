@@ -31,21 +31,21 @@ type HandlerOption func(h *handler)
 // or HTTPHandlerFunc.
 //
 // This can change the default error handling behavior of the handler.
-func WithErrorHandler(eh ErrorRenderable) HandlerOption {
+func WithErrorHandler(eh ErrorHandler) HandlerOption {
 	return func(h *handler) {
 		h.ErrorHandler = eh
 	}
 }
 
 // WithErrorHandlerFunc is the same as WithErrorHandler.
-func WithErrorHandlerFunc(eh ErrorRenderableFunc) HandlerOption {
+func WithErrorHandlerFunc(eh ErrorHandlerFunc) HandlerOption {
 	return WithErrorHandler(eh)
 }
 
 // handler implements http.Handler for a RequestRenderable.
 type handler struct {
 	Renderable   RequestRenderable
-	ErrorHandler ErrorRenderable
+	ErrorHandler ErrorHandler
 }
 
 // ServeHTTP implements http.Handler.
