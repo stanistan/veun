@@ -16,7 +16,7 @@ type FailingView struct {
 	Err error
 }
 
-func (v FailingView) Renderable(_ context.Context) (*Renderable, error) {
+func (v FailingView) Renderable(_ context.Context) (*View, error) {
 	return nil, fmt.Errorf("FailingView.Renderable(): %w", v.Err)
 }
 
@@ -25,7 +25,7 @@ type FallibleView struct {
 	Child       AsR
 }
 
-func (v FallibleView) Renderable(_ context.Context) (*Renderable, error) {
+func (v FallibleView) Renderable(_ context.Context) (*View, error) {
 	return R(v.Child).WithErrorHandler(v), nil
 }
 

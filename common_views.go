@@ -7,7 +7,7 @@ import (
 
 type Raw string
 
-func (r Raw) Renderable(_ context.Context) (*Renderable, error) { return R(r), nil }
+func (r Raw) Renderable(_ context.Context) (*View, error) { return R(r), nil }
 
 func (r Raw) AsHTML(_ context.Context) (template.HTML, error) {
 	return template.HTML(r), nil
@@ -15,7 +15,7 @@ func (r Raw) AsHTML(_ context.Context) (template.HTML, error) {
 
 type Views []AsR
 
-func (vs Views) Renderable(_ context.Context) (*Renderable, error) {
+func (vs Views) Renderable(_ context.Context) (*View, error) {
 	return R(vs), nil
 }
 

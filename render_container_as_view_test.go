@@ -14,8 +14,8 @@ type ContainerView2 struct {
 	Heading, Body AsR
 }
 
-func (v ContainerView2) Renderable(ctx context.Context) (*Renderable, error) {
-	return R(View{
+func (v ContainerView2) Renderable(ctx context.Context) (*View, error) {
+	return R(Template{
 		Tpl:   containerViewTpl,
 		Slots: Slots{"heading": v.Heading, "body": v.Body},
 	}), nil

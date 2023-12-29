@@ -2,23 +2,30 @@ package veun
 
 import (
 	"context"
+	"fmt"
+	"html/template"
 	"log/slog"
 	"net/http"
 )
 
 func HTTPHandler(r RequestHandler, opts ...HandlerOption) http.Handler {
-	h := handler{RequestHandler: r}
-	for _, opt := range opts {
-		opt(&h)
-	}
-	return h
+	return newHandler(r, opts)
 }
 
 func HTTPHandlerFunc(r RequestHandlerFunc, opts ...HandlerOption) http.Handler {
+	return newHandler(r, opts)
+}
+
+func newHandler(r RequestHandler, opts []HandlerOption) handler {
 	h := handler{RequestHandler: r}
-	for _, opt := range opts {
-		opt(&h)
+	for _, option := range opts {
+		option(&h)
 	}
+
+	if h.ErrorHandler == nil {
+		h.ErrorHandler = PassThroughErrorHandler()
+	}
+
 	return h
 }
 
@@ -71,7 +78,7 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h handler) handleError(ctx context.Context, w http.ResponseWriter, err error) {
-	html, rErr := handleRenderError(ctx, err, h.ErrorHandler)
+	html, rErr := renderError(ctx, h.ErrorHandler, err)
 	if rErr == nil && len(html) > 0 {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte(html))
@@ -82,4 +89,28 @@ func (h handler) handleError(ctx context.Context, w http.ResponseWriter, err err
 	slog.Error("handler failed", "err", err)
 	code := http.StatusInternalServerError
 	http.Error(w, http.StatusText(code), code)
+}
+
+func renderError(ctx context.Context, h ErrorHandler, err error) (template.HTML, error) {
+	var empty template.HTML
+
+	if h == nil {
+		return empty, err
+	}
+
+	v, err := h.ViewForError(ctx, err)
+	if err != nil {
+		return empty, err
+	}
+
+	if v == nil {
+		return empty, nil
+	}
+
+	out, err := Render(ctx, v)
+	if err != nil {
+		return empty, fmt.Errorf("renderError %T: %w", v, err)
+	}
+
+	return out, nil
 }

@@ -18,8 +18,8 @@ type html struct {
 	Body AsR
 }
 
-func (v html) Renderable(_ context.Context) (*Renderable, error) {
-	return R(View{Tpl: htmlTpl, Slots: Slots{"body": R(v.Body)}}), nil
+func (v html) Renderable(_ context.Context) (*View, error) {
+	return R(Template{Tpl: htmlTpl, Slots: Slots{"body": R(v.Body)}}), nil
 }
 
 func HTML(rh RequestHandler) http.Handler {
@@ -41,8 +41,8 @@ type errorView struct {
 	Error error
 }
 
-func (v errorView) Renderable(_ context.Context) (*Renderable, error) {
-	return R(View{Tpl: errorViewTpl, Data: v.Error}), nil
+func (v errorView) Renderable(_ context.Context) (*View, error) {
+	return R(Template{Tpl: errorViewTpl, Data: v.Error}), nil
 }
 
 func newErrorView(_ context.Context, err error) (AsR, error) {

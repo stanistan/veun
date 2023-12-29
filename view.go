@@ -2,21 +2,28 @@ package veun
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 	"io/fs"
 )
 
-type View struct {
+type Template struct {
 	Tpl   *template.Template
 	Slots Slots
 	Data  any
 }
 
-func (v View) AsHTML(ctx context.Context) (template.HTML, error) {
-	return TemplateRenderable{
+func (v Template) AsHTML(ctx context.Context) (template.HTML, error) {
+	out, err := TemplateRenderable{
 		Tpl:  v.Slots.addToTemplate(ctx, v.Tpl),
 		Data: v.Data,
 	}.AsHTML(ctx)
+
+	if err != nil {
+		return out, fmt.Errorf("TemplateRenderable.AsHTML: %w", err)
+	}
+
+	return out, nil
 }
 
 func slotFuncStub(name string) (template.HTML, error) {

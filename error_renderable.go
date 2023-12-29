@@ -2,7 +2,6 @@ package veun
 
 import (
 	"context"
-	"html/template"
 )
 
 type ErrorHandler interface {
@@ -27,15 +26,4 @@ func MakeErrorHandler(from any) ErrorHandler {
 	}
 
 	return PassThroughErrorHandler()
-}
-
-func handleRenderError(ctx context.Context, err error, with any) (template.HTML, error) {
-	var empty template.HTML
-
-	v, err := MakeErrorHandler(with).ViewForError(ctx, err)
-	if err != nil {
-		return empty, err
-	}
-
-	return Render(ctx, v)
 }

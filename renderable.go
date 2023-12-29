@@ -12,7 +12,7 @@ type HTMLRenderable interface {
 }
 
 type AsR interface {
-	Renderable(ctx context.Context) (*Renderable, error)
+	Renderable(ctx context.Context) (*View, error)
 }
 
 type errorHTMLRenderable struct {
@@ -32,13 +32,18 @@ func (r asHTML) AsHTML(ctx context.Context) (template.HTML, error) {
 
 	v, err := r.r.Renderable(ctx)
 	if err != nil {
-		return empty, err
+		return empty, fmt.Errorf("Renderable(): %w", err)
 	}
 
-	return v.Render(ctx)
+	out, err := v.Render(ctx)
+	if err != nil {
+		return out, fmt.Errorf("Render: %w", err)
+	}
+
+	return out, nil
 }
 
-type Renderable struct {
+type View struct {
 	r  HTMLRenderable
 	eh ErrorHandler
 }
@@ -62,11 +67,11 @@ func makeHTMLRenderable(in any) HTMLRenderable {
 	}
 }
 
-func (r *Renderable) Renderable(ctx context.Context) (*Renderable, error) {
+func (r *View) Renderable(ctx context.Context) (*View, error) {
 	return r, nil
 }
 
-func (r *Renderable) Render(ctx context.Context) (template.HTML, error) {
+func (r *View) Render(ctx context.Context) (template.HTML, error) {
 	var empty template.HTML
 
 	if r == nil {
@@ -78,53 +83,44 @@ func (r *Renderable) Render(ctx context.Context) (template.HTML, error) {
 	}
 
 	out, err := r.r.AsHTML(ctx)
-	if err == nil {
-		return out, nil
+	if err != nil {
+		return renderError(ctx, r.eh, err)
 	}
 
-	// error handling
-	v, err := r.eh.ViewForError(ctx, err)
-	if err != nil {
-		return empty, err
-	} else if v == nil {
-		return empty, nil
-	} else {
-		return Render(ctx, v)
-	}
+	return out, nil
 }
 
-func R(in any) *Renderable {
-
+func R(in any) *View {
 	if in == nil {
 		return nil
 	}
 
 	switch t := in.(type) {
-	case *Renderable:
+	case *View:
 		return t
 	case template.HTML:
-		return &Renderable{
+		return &View{
 			r:  Raw(t),
 			eh: PassThroughErrorHandler(),
 		}
 	case HTMLRenderable:
-		return &Renderable{
+		return &View{
 			r:  t,
 			eh: PassThroughErrorHandler(),
 		}
 	case AsR:
-		return &Renderable{
+		return &View{
 			r:  asHTML{t},
 			eh: PassThroughErrorHandler(),
 		}
 	}
 
-	return &Renderable{
+	return &View{
 		eh: PassThroughErrorHandler(),
 		r:  errorHTMLRenderable{fmt.Errorf("can't construct %T", in)},
 	}
 }
 
-func (r *Renderable) WithErrorHandler(eh ErrorHandler) *Renderable {
-	return &Renderable{r: r.r, eh: eh}
+func (r *View) WithErrorHandler(eh ErrorHandler) *View {
+	return &View{r: r.r, eh: eh}
 }
