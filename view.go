@@ -2,9 +2,11 @@ package veun
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"html/template"
 	"io/fs"
+	tt "text/template"
 )
 
 type Template struct {
@@ -14,13 +16,18 @@ type Template struct {
 }
 
 func (v Template) AsHTML(ctx context.Context) (template.HTML, error) {
-	out, err := TemplateRenderable{
+	out, err := BasicTemplate{
 		Tpl:  v.Slots.addToTemplate(ctx, v.Tpl),
 		Data: v.Data,
 	}.AsHTML(ctx)
 
 	if err != nil {
-		return out, fmt.Errorf("TemplateRenderable.AsHTML: %w", err)
+		var tErr tt.ExecError
+		if errors.As(err, &tErr) {
+			err = errors.Unwrap(tErr.Err)
+		}
+
+		return out, fmt.Errorf("in template '%s': %w", v.Tpl.Name(), err)
 	}
 
 	return out, nil

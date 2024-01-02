@@ -7,16 +7,16 @@ import (
 	"html/template"
 )
 
-func Render(ctx context.Context, v AsR) (template.HTML, error) {
-	return R(v).Render(ctx)
+func Render(ctx context.Context, v AsView) (template.HTML, error) {
+	return V(v).Render(ctx)
 }
 
-type TemplateRenderable struct {
+type BasicTemplate struct {
 	Tpl  *template.Template
 	Data any
 }
 
-func (v TemplateRenderable) AsHTML(_ context.Context) (template.HTML, error) {
+func (v BasicTemplate) AsHTML(_ context.Context) (template.HTML, error) {
 	var empty template.HTML
 
 	if v.Tpl == nil {

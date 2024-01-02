@@ -15,15 +15,15 @@ import (
 var htmlTpl = MustParseTemplate("html", `<html><body>{{ slot "body" }}</body></html>`)
 
 type html struct {
-	Body AsR
+	Body AsView
 }
 
-func (v html) Renderable(_ context.Context) (*View, error) {
-	return R(Template{Tpl: htmlTpl, Slots: Slots{"body": R(v.Body)}}), nil
+func (v html) View(_ context.Context) (*View, error) {
+	return V(Template{Tpl: htmlTpl, Slots: Slots{"body": V(v.Body)}}), nil
 }
 
 func HTML(rh RequestHandler) http.Handler {
-	return HTTPHandlerFunc(func(r *http.Request) (AsR, http.Handler, error) {
+	return HTTPHandlerFunc(func(r *http.Request) (AsView, http.Handler, error) {
 		v, next, err := rh.ViewForRequest(r)
 		if err != nil {
 			return nil, nil, err
@@ -41,11 +41,11 @@ type errorView struct {
 	Error error
 }
 
-func (v errorView) Renderable(_ context.Context) (*View, error) {
-	return R(Template{Tpl: errorViewTpl, Data: v.Error}), nil
+func (v errorView) View(_ context.Context) (*View, error) {
+	return V(Template{Tpl: errorViewTpl, Data: v.Error}), nil
 }
 
-func newErrorView(_ context.Context, err error) (AsR, error) {
+func newErrorView(_ context.Context, err error) (AsView, error) {
 	return errorView{Error: err}, nil
 }
 
@@ -57,7 +57,7 @@ func TestHTTPHandler(t *testing.T) {
 		})
 	}
 
-	var empty = RequestHandlerFunc(func(r *http.Request) (AsR, http.Handler, error) {
+	var empty = RequestHandlerFunc(func(r *http.Request) (AsView, http.Handler, error) {
 		switch r.URL.Query().Get("not_found") {
 		case "default":
 			return nil, http.NotFoundHandler(), nil
@@ -68,7 +68,7 @@ func TestHTTPHandler(t *testing.T) {
 		}
 	})
 
-	var person = RequestHandlerFunc(func(r *http.Request) (AsR, http.Handler, error) {
+	var person = RequestHandlerFunc(func(r *http.Request) (AsView, http.Handler, error) {
 		name := r.URL.Query().Get("name")
 		if name == "" {
 			return nil, nil, fmt.Errorf("missing name")

@@ -11,7 +11,7 @@ import (
 )
 
 type ContainerView struct {
-	Heading, Body AsR
+	Heading, Body AsView
 }
 
 var containerViewTpl = MustParseTemplate("containerView", `<div>
@@ -19,7 +19,7 @@ var containerViewTpl = MustParseTemplate("containerView", `<div>
 	<div class="body">{{ slot "body" }}</div>
 </div>`)
 
-func tplWithRealSlotFunc(ctx context.Context, tpl *template.Template, slots map[string]AsR) *template.Template {
+func tplWithRealSlotFunc(ctx context.Context, tpl *template.Template, slots map[string]AsView) *template.Template {
 	return tpl.Funcs(template.FuncMap{
 		"slot": func(name string) (template.HTML, error) {
 			slot, ok := slots[name]
@@ -32,16 +32,16 @@ func tplWithRealSlotFunc(ctx context.Context, tpl *template.Template, slots map[
 }
 
 func (v ContainerView) AsHTML(ctx context.Context) (template.HTML, error) {
-	return TemplateRenderable{
-		Tpl: tplWithRealSlotFunc(ctx, containerViewTpl, map[string]AsR{
+	return BasicTemplate{
+		Tpl: tplWithRealSlotFunc(ctx, containerViewTpl, map[string]AsView{
 			"heading": v.Heading,
 			"body":    v.Body,
 		}),
 	}.AsHTML(ctx)
 }
 
-func (v ContainerView) Renderable(_ context.Context) (*View, error) {
-	return R(v), nil
+func (v ContainerView) View(_ context.Context) (*View, error) {
+	return V(v), nil
 }
 
 var childViewTemplate = template.Must(
@@ -50,14 +50,14 @@ var childViewTemplate = template.Must(
 
 type ChildView1 struct{}
 
-func (v ChildView1) Renderable(_ context.Context) (*View, error) {
-	return R(Template{Tpl: childViewTemplate, Data: "HEADING"}), nil
+func (v ChildView1) View(_ context.Context) (*View, error) {
+	return V(Template{Tpl: childViewTemplate, Data: "HEADING"}), nil
 }
 
 type ChildView2 struct{}
 
-func (v ChildView2) Renderable(_ context.Context) (*View, error) {
-	return R(Template{Tpl: childViewTemplate, Data: "BODY"}), nil
+func (v ChildView2) View(_ context.Context) (*View, error) {
+	return V(Template{Tpl: childViewTemplate, Data: "BODY"}), nil
 }
 
 func TestRenderContainer(t *testing.T) {

@@ -25,8 +25,8 @@ var personViewTpl = template.Must(
 	template.New("PersonView").Parse(`<div>Hi, {{ .Name }}.</div>`),
 )
 
-func (v *personView) Renderable(_ context.Context) (*View, error) {
-	return R(Template{Tpl: personViewTpl, Data: v.Person}), nil
+func (v *personView) View(_ context.Context) (*View, error) {
+	return V(Template{Tpl: personViewTpl, Data: v.Person}), nil
 }
 
 func TestRenderPerson(t *testing.T) {

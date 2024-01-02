@@ -11,28 +11,32 @@ type HTMLRenderable interface {
 	AsHTML(ctx context.Context) (template.HTML, error)
 }
 
-type AsR interface {
-	Renderable(ctx context.Context) (*View, error)
+type AsView interface {
+	View(ctx context.Context) (*View, error)
 }
 
-type errorHTMLRenderable struct {
-	err error
+type errViewInvalid struct {
+	Err error
 }
 
-func (e errorHTMLRenderable) AsHTML(_ context.Context) (template.HTML, error) {
-	return template.HTML(""), e.err
+func (e errViewInvalid) Error() string {
+	return e.Err.Error()
 }
 
-type asHTML struct {
-	r AsR
+func (e errViewInvalid) AsHTML(_ context.Context) (template.HTML, error) {
+	return template.HTML(""), e
 }
 
-func (r asHTML) AsHTML(ctx context.Context) (template.HTML, error) {
+type renderable struct {
+	r AsView
+}
+
+func (r renderable) AsHTML(ctx context.Context) (template.HTML, error) {
 	var empty template.HTML
 
-	v, err := r.r.Renderable(ctx)
+	v, err := r.r.View(ctx)
 	if err != nil {
-		return empty, fmt.Errorf("Renderable(): %w", err)
+		return empty, fmt.Errorf("%T Renderable: %w", r.r, err)
 	}
 
 	out, err := v.Render(ctx)
@@ -58,16 +62,16 @@ func makeHTMLRenderable(in any) HTMLRenderable {
 		return Raw(t)
 	case HTMLRenderable:
 		return t
-	case AsR:
-		return asHTML{t}
+	case AsView:
+		return renderable{t}
 	default:
-		return errorHTMLRenderable{
-			err: fmt.Errorf("invalid renderable %T", in),
+		return errViewInvalid{
+			Err: fmt.Errorf("invalid view %T", in),
 		}
 	}
 }
 
-func (r *View) Renderable(ctx context.Context) (*View, error) {
+func (r *View) View(ctx context.Context) (*View, error) {
 	return r, nil
 }
 
@@ -90,7 +94,7 @@ func (r *View) Render(ctx context.Context) (template.HTML, error) {
 	return out, nil
 }
 
-func R(in any) *View {
+func V(in any) *View {
 	if in == nil {
 		return nil
 	}
@@ -108,16 +112,16 @@ func R(in any) *View {
 			r:  t,
 			eh: PassThroughErrorHandler(),
 		}
-	case AsR:
+	case AsView:
 		return &View{
-			r:  asHTML{t},
+			r:  renderable{t},
 			eh: PassThroughErrorHandler(),
 		}
 	}
 
 	return &View{
 		eh: PassThroughErrorHandler(),
-		r:  errorHTMLRenderable{fmt.Errorf("can't construct %T", in)},
+		r:  errViewInvalid{fmt.Errorf("can't construct %T", in)},
 	}
 }
 

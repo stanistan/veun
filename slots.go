@@ -8,7 +8,7 @@ import (
 	tt "text/template"
 )
 
-type Slots map[string]AsR
+type Slots map[string]AsView
 
 func (s Slots) renderSlot(ctx context.Context) func(string) (template.HTML, error) {
 	return func(name string) (template.HTML, error) {
@@ -23,7 +23,7 @@ func (s Slots) renderSlot(ctx context.Context) func(string) (template.HTML, erro
 					return out, tplError.Unwrap()
 				}
 
-				return out, fmt.Errorf("named '%s': %w", name, err)
+				return out, fmt.Errorf("slot '%s': %w", name, err)
 			}
 
 			return out, nil

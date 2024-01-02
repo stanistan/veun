@@ -5,11 +5,11 @@ import (
 )
 
 type RequestHandler interface {
-	ViewForRequest(r *http.Request) (AsR, http.Handler, error)
+	ViewForRequest(r *http.Request) (AsView, http.Handler, error)
 }
 
-type RequestHandlerFunc func(*http.Request) (AsR, http.Handler, error)
+type RequestHandlerFunc func(*http.Request) (AsView, http.Handler, error)
 
-func (f RequestHandlerFunc) ViewForRequest(r *http.Request) (AsR, http.Handler, error) {
+func (f RequestHandlerFunc) ViewForRequest(r *http.Request) (AsView, http.Handler, error) {
 	return f(r)
 }

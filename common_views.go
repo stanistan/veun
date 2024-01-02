@@ -7,16 +7,16 @@ import (
 
 type Raw string
 
-func (r Raw) Renderable(_ context.Context) (*View, error) { return R(r), nil }
+func (r Raw) View(_ context.Context) (*View, error) { return V(r), nil }
 
 func (r Raw) AsHTML(_ context.Context) (template.HTML, error) {
 	return template.HTML(r), nil
 }
 
-type Views []AsR
+type Views []AsView
 
-func (vs Views) Renderable(_ context.Context) (*View, error) {
-	return R(vs), nil
+func (vs Views) View(_ context.Context) (*View, error) {
+	return V(vs), nil
 }
 
 func (vs Views) AsHTML(ctx context.Context) (template.HTML, error) {

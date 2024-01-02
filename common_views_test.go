@@ -10,7 +10,7 @@ import (
 	. "github.com/stanistan/veun"
 )
 
-func Div(contents AsR) AsR {
+func Div(contents AsView) AsView {
 	return Views{
 		Raw("<div>"), contents, Raw("</div>"),
 	}

@@ -11,11 +11,11 @@ import (
 )
 
 type ContainerView2 struct {
-	Heading, Body AsR
+	Heading, Body AsView
 }
 
-func (v ContainerView2) Renderable(ctx context.Context) (*View, error) {
-	return R(Template{
+func (v ContainerView2) View(ctx context.Context) (*View, error) {
+	return V(Template{
 		Tpl:   containerViewTpl,
 		Slots: Slots{"heading": v.Heading, "body": v.Body},
 	}), nil
