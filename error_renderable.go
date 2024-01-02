@@ -1,40 +1,44 @@
 package veun
 
 import (
-	"context"
 	"html/template"
 )
 
-type ErrorRenderable interface {
-	ErrorRenderable(ctx context.Context, err error) (AsRenderable, error)
+type ErrorHandler interface {
+	ViewForError(e *Error) (Renderable, error)
 }
 
-type ErrorRenderableFunc func(context.Context, error) (AsRenderable, error)
+type ErrorHandlerFunc func(*Error) (Renderable, error)
 
-func (f ErrorRenderableFunc) ErrorRenderable(ctx context.Context, err error) (AsRenderable, error) {
-	return f(ctx, err)
+func (f ErrorHandlerFunc) ViewForError(e *Error) (Renderable, error) {
+	return f(e)
 }
 
-func handleRenderError(ctx context.Context, err error, with any) (template.HTML, error) {
-	var empty template.HTML
+func PassThroughErrorHandler() ErrorHandler {
+	return ErrorHandlerFunc(func(e *Error) (Renderable, error) {
+		return nil, e.Err
+	})
+}
 
-	if with == nil {
-		return empty, err
+func MakeErrorHandler(in any) ErrorHandler {
+	errR, ok := in.(ErrorHandler)
+	if !ok || in == nil {
+		return PassThroughErrorHandler()
+	} else {
+		return errR
 	}
+}
 
-	errRenderable, ok := with.(ErrorRenderable)
-	if !ok {
-		return empty, err
-	}
-
-	r, err := errRenderable.ErrorRenderable(ctx, err)
+func RenderError(e *Error, with any) (template.HTML, error) {
+	v, err := MakeErrorHandler(with).ViewForError(e)
 	if err != nil {
-		return empty, err
+		return emptyHTML(), err
 	}
 
-	if r == nil {
-		return empty, nil
+	out, err := RenderToHTML(e.Context(), v, nil)
+	if err != nil {
+		return emptyHTML(), err
 	}
 
-	return Render(ctx, r)
+	return out, nil
 }
