@@ -30,7 +30,7 @@ func MakeErrorHandler(from any) ErrorHandler {
 	return PassThroughErrorHandler()
 }
 
-func renderError(ctx context.Context, h ErrorHandler, err error) (template.HTML, error) {
+func RenderError(ctx context.Context, h ErrorHandler, err error) (template.HTML, error) {
 	var empty template.HTML
 
 	if h == nil {

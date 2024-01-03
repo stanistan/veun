@@ -29,7 +29,7 @@ func (r *View) render(ctx context.Context) (template.HTML, error) {
 
 	out, err := r.r.AsHTML(ctx)
 	if err != nil {
-		return renderError(ctx, r.eh, err)
+		return RenderError(ctx, r.eh, err)
 	}
 
 	return out, nil
