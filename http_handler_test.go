@@ -11,8 +11,8 @@ import (
 	"github.com/alecthomas/assert/v2"
 
 	"github.com/stanistan/veun"
-	vhttp "github.com/stanistan/veun/http"
-	"github.com/stanistan/veun/http/request"
+	"github.com/stanistan/veun/vhttp"
+	"github.com/stanistan/veun/vhttp/request"
 )
 
 var htmlTpl = veun.MustParseTemplate("html", `<html><body>{{ slot "body" }}</body></html>`)

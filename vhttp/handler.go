@@ -1,4 +1,4 @@
-package http
+package vhttp
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/stanistan/veun"
-	"github.com/stanistan/veun/http/request"
+	"github.com/stanistan/veun/vhttp/request"
 )
 
 func Handler(r request.Handler, opts ...Option) http.Handler {
