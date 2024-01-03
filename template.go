@@ -10,6 +10,19 @@ import (
 	tt "text/template"
 )
 
+func MustParseTemplate(name, contents string) *template.Template {
+	return template.Must(newTemplate(name).Parse(contents))
+}
+
+func MustParseTemplateFS(f fs.FS, ps ...string) *template.Template {
+	return template.Must(newTemplate("ROOT").ParseFS(f, ps...))
+}
+
+func newTemplate(name string) *template.Template {
+	return Slots{}.addToTemplate(context.TODO(), template.New(name))
+}
+
+// BasicTemplate encapsulates basic html templare rendering.
 type BasicTemplate struct {
 	Tpl  *template.Template
 	Data any
@@ -30,6 +43,7 @@ func (v BasicTemplate) AsHTML(_ context.Context) (template.HTML, error) {
 	return template.HTML(bs.String()), nil
 }
 
+// Template encapsulates basic html template rendering, but also includes Slots.
 type Template struct {
 	Tpl   *template.Template
 	Slots Slots
@@ -54,29 +68,17 @@ func (v Template) AsHTML(ctx context.Context) (template.HTML, error) {
 	return out, nil
 }
 
+// Slots are a mapping from a string name to a "slot".
 type Slots map[string]AsView
 
 func (s Slots) renderSlot(ctx context.Context) func(string) (template.HTML, error) {
 	return func(name string) (template.HTML, error) {
-
-		slot, ok := s[name]
-		if ok && slot != nil {
-
-			out, err := Render(ctx, slot)
-			if err != nil {
-				var tplError tt.ExecError
-				if errors.As(err, &tplError) {
-					return out, tplError.Unwrap()
-				}
-
-				return out, fmt.Errorf("slot '%s': %w", name, err)
-			}
-
-			return out, nil
+		out, err := Render(ctx, s[name])
+		if err != nil {
+			return out, fmt.Errorf("slot '%s': %w", name, err)
 		}
 
-		var empty template.HTML
-		return empty, nil
+		return out, nil
 	}
 }
 
@@ -86,22 +88,4 @@ func (s Slots) addToTemplate(ctx context.Context, t *template.Template) *templat
 	}
 
 	return t.Funcs(template.FuncMap{"slot": s.renderSlot(ctx)})
-}
-
-func slotFuncStub(name string) (template.HTML, error) {
-	return template.HTML(""), nil
-}
-
-func newTemplate(name string) *template.Template {
-	return template.New(name).Funcs(template.FuncMap{
-		"slot": slotFuncStub,
-	})
-}
-
-func MustParseTemplate(name, contents string) *template.Template {
-	return template.Must(newTemplate(name).Parse(contents))
-}
-
-func MustParseTemplateFS(f fs.FS, ps ...string) *template.Template {
-	return template.Must(newTemplate("ROOT").ParseFS(f, ps...))
 }

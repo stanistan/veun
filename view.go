@@ -12,8 +12,14 @@ type View struct {
 	eh ErrorHandler
 }
 
+// View conforms View to AsView.
 func (r *View) View(_ context.Context) (*View, error) {
 	return r, nil
+}
+
+// WithErrorHandler creates a new View with the error handler.
+func (r *View) WithErrorHandler(eh ErrorHandler) *View {
+	return &View{r: r.r, eh: eh}
 }
 
 func (r *View) render(ctx context.Context) (template.HTML, error) {
@@ -33,10 +39,6 @@ func (r *View) render(ctx context.Context) (template.HTML, error) {
 	}
 
 	return out, nil
-}
-
-func (r *View) WithErrorHandler(eh ErrorHandler) *View {
-	return &View{r: r.r, eh: eh}
 }
 
 type errViewInvalid struct {

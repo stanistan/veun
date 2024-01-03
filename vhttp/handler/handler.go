@@ -2,6 +2,13 @@ package handler
 
 import "net/http"
 
+// OnlyRoot will only apply the provided handler on the root URL path.
+//
+// This is usefull for mounting a handler at the '/' path.
+//
+//	http.Handle("/", OnlyRoot(...))
+//
+// It will 404 for anything else.
 func OnlyRoot(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/" {
