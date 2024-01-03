@@ -16,7 +16,7 @@ func (f HandlerFunc) ViewForRequest(r *http.Request) (veun.AsView, http.Handler,
 	return f(r)
 }
 
-func ConstantView(v veun.AsView) Handler {
+func Always(v veun.AsView) Handler {
 	return HandlerFunc(func(_ *http.Request) (veun.AsView, http.Handler, error) {
 		return v, nil, nil
 	})
