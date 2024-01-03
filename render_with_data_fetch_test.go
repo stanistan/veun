@@ -46,27 +46,27 @@ func NewExpensiveView(shouldErr bool, sleepFor time.Duration) *ExpensiveView {
 	return &ExpensiveView{Data: dataCh, Err: errCh}
 }
 
-func (v *ExpensiveView) Renderable(ctx context.Context) (Renderable, error) {
+func (v *ExpensiveView) View(ctx context.Context) (*View, error) {
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()
 	case err := <-v.Err:
 		return nil, err
 	case data := <-v.Data:
-		return View{Tpl: expensiveViewTpl, Data: data}, nil
+		return V(Template{Tpl: expensiveViewTpl, Data: data}), nil
 	}
 }
 
 type ViewWithTimeout struct {
-	Delegate AsRenderable
+	Delegate AsView
 	Timeout  time.Duration
 }
 
-func (v ViewWithTimeout) Renderable(ctx context.Context) (Renderable, error) {
+func (v ViewWithTimeout) View(ctx context.Context) (*View, error) {
 	ctx, cancel := context.WithTimeout(ctx, v.Timeout)
 	defer cancel()
 
-	return v.Delegate.Renderable(ctx)
+	return v.Delegate.View(ctx)
 }
 
 func TestViewWithChannels(t *testing.T) {

@@ -9,22 +9,28 @@ import (
 	"testing"
 
 	"github.com/alecthomas/assert/v2"
-	. "github.com/stanistan/veun"
+
+	"github.com/stanistan/veun"
+	"github.com/stanistan/veun/vhttp"
+	"github.com/stanistan/veun/vhttp/request"
 )
 
-var htmlTpl = MustParseTemplate("html", `<html><body>{{ slot "body" }}</body></html>`)
+var htmlTpl = veun.MustParseTemplate("html", `<html><body>{{ slot "body" }}</body></html>`)
 
 type html struct {
-	Body AsRenderable
+	Body veun.AsView
 }
 
-func (v html) Renderable(_ context.Context) (Renderable, error) {
-	return View{Tpl: htmlTpl, Slots: Slots{"body": v.Body}}, nil
+func (v html) View(_ context.Context) (*veun.View, error) {
+	return veun.V(veun.Template{
+		Tpl:   htmlTpl,
+		Slots: veun.Slots{"body": v.Body},
+	}), nil
 }
 
-func HTML(renderable RequestRenderable) http.Handler {
-	return HTTPHandlerFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
-		v, next, err := renderable.RequestRenderable(r)
+func HTML(rh request.Handler) http.Handler {
+	return vhttp.HandlerFunc(func(r *http.Request) (veun.AsView, http.Handler, error) {
+		v, next, err := rh.ViewForRequest(r)
 		if err != nil {
 			return nil, nil, err
 		} else if v == nil {
@@ -35,17 +41,17 @@ func HTML(renderable RequestRenderable) http.Handler {
 	})
 }
 
-var errorViewTpl = MustParseTemplate("errorView", `Error: {{ . }}`)
+var errorViewTpl = veun.MustParseTemplate("errorView", `Error: {{ . }}`)
 
 type errorView struct {
 	Error error
 }
 
-func (v errorView) Renderable(_ context.Context) (Renderable, error) {
-	return View{Tpl: errorViewTpl, Data: v.Error}, nil
+func (v errorView) View(_ context.Context) (*veun.View, error) {
+	return veun.V(veun.Template{Tpl: errorViewTpl, Data: v.Error}), nil
 }
 
-func newErrorView(_ context.Context, err error) (AsRenderable, error) {
+func newErrorView(_ context.Context, err error) (veun.AsView, error) {
 	return errorView{Error: err}, nil
 }
 
@@ -57,7 +63,7 @@ func TestHTTPHandler(t *testing.T) {
 		})
 	}
 
-	var empty = RequestRenderableFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
+	var empty = request.HandlerFunc(func(r *http.Request) (veun.AsView, http.Handler, error) {
 		switch r.URL.Query().Get("not_found") {
 		case "default":
 			return nil, http.NotFoundHandler(), nil
@@ -68,7 +74,7 @@ func TestHTTPHandler(t *testing.T) {
 		}
 	})
 
-	var person = RequestRenderableFunc(func(r *http.Request) (AsRenderable, http.Handler, error) {
+	var person = request.HandlerFunc(func(r *http.Request) (veun.AsView, http.Handler, error) {
 		name := r.URL.Query().Get("name")
 		if name == "" {
 			return nil, nil, fmt.Errorf("missing name")
@@ -79,10 +85,10 @@ func TestHTTPHandler(t *testing.T) {
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/empty", HTTPHandler(empty))
+	mux.Handle("/empty", vhttp.Handler(empty))
 	mux.Handle("/html/empty", HTML(empty))
 
-	mux.Handle("/person", HTTPHandler(person, WithErrorHandlerFunc(newErrorView)))
+	mux.Handle("/person", vhttp.Handler(person, vhttp.WithErrorHandlerFunc(newErrorView)))
 	mux.Handle("/html/person", HTML(person))
 
 	server := httptest.NewServer(mux)

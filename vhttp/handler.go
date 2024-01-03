@@ -1,62 +1,68 @@
-package veun
+package vhttp
 
 import (
 	"context"
 	"log/slog"
 	"net/http"
+
+	"github.com/stanistan/veun"
+	"github.com/stanistan/veun/vhttp/request"
 )
 
-// HTTPHandler constructs an http.HTTPHandler given the RequestRenderable.
-func HTTPHandler(r RequestRenderable, opts ...HandlerOption) http.Handler {
-	h := handler{Renderable: r}
-	for _, opt := range opts {
-		opt(&h)
+func Handler(r request.Handler, opts ...Option) http.Handler {
+	return newHandler(r, opts)
+}
+
+func HandlerFunc(r request.HandlerFunc, opts ...Option) http.Handler {
+	return newHandler(r, opts)
+}
+
+func newHandler(r request.Handler, opts []Option) handler {
+	h := handler{RequestHandler: r}
+	for _, option := range opts {
+		option(&h)
 	}
+
+	if h.ErrorHandler == nil {
+		h.ErrorHandler = veun.PassThroughErrorHandler()
+	}
+
 	return h
 }
 
-// HTTPHandler constructs an http.HTTPHandler given the RequestRenderableFunc.
-func HTTPHandlerFunc(r RequestRenderableFunc, opts ...HandlerOption) http.Handler {
-	h := handler{Renderable: r}
-	for _, opt := range opts {
-		opt(&h)
-	}
-	return h
-}
-
-// HandlerOption is an option that can be provided to the handler.
-type HandlerOption func(h *handler)
+// Option is an option that can be provided to the handler.
+type Option func(h *handler)
 
 // WithErrorHandler creates a HandlerOption that can be provided to HTTPHandler
 // or HTTPHandlerFunc.
 //
 // This can change the default error handling behavior of the handler.
-func WithErrorHandler(eh ErrorRenderable) HandlerOption {
+func WithErrorHandler(eh veun.ErrorHandler) Option {
 	return func(h *handler) {
 		h.ErrorHandler = eh
 	}
 }
 
 // WithErrorHandlerFunc is the same as WithErrorHandler.
-func WithErrorHandlerFunc(eh ErrorRenderableFunc) HandlerOption {
+func WithErrorHandlerFunc(eh veun.ErrorHandlerFunc) Option {
 	return WithErrorHandler(eh)
 }
 
 // handler implements http.Handler for a RequestRenderable.
 type handler struct {
-	Renderable   RequestRenderable
-	ErrorHandler ErrorRenderable
+	RequestHandler request.Handler
+	ErrorHandler   veun.ErrorHandler
 }
 
 // ServeHTTP implements http.Handler.
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	renderable, next, err := h.Renderable.RequestRenderable(r)
+	renderable, next, err := h.RequestHandler.ViewForRequest(r)
 	if err != nil {
 		h.handleError(r.Context(), w, err)
 		return
 	}
 
-	html, err := Render(r.Context(), renderable)
+	html, err := veun.Render(r.Context(), renderable)
 	if err != nil {
 		h.handleError(r.Context(), w, err)
 		return
@@ -73,7 +79,7 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h handler) handleError(ctx context.Context, w http.ResponseWriter, err error) {
-	html, rErr := handleRenderError(ctx, err, h.ErrorHandler)
+	html, rErr := veun.RenderError(ctx, h.ErrorHandler, err)
 	if rErr == nil && len(html) > 0 {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte(html))
