@@ -9,14 +9,24 @@ import "net/http"
 //	http.Handle("/", OnlyRoot(...))
 //
 // It will 404 for anything else.
-func OnlyRoot(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/" {
-			next.ServeHTTP(w, r)
-		} else {
-			http.NotFound(w, r)
-		}
-	})
+var OnlyRoot = MatchesPath(func(path string) bool {
+	return path == "/"
+})
+
+var ExceptRoot = MatchesPath(func(path string) bool {
+	return path != "/"
+})
+
+func MatchesPath(matches func(string) bool) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if matches(r.URL.Path) {
+				next.ServeHTTP(w, r)
+			} else {
+				http.NotFound(w, r)
+			}
+		})
+	}
 }
 
 // Checked will continue on the handler chain if the
@@ -30,6 +40,13 @@ func Checked(hs ...http.Handler) http.Handler {
 	return &checked{
 		handlers: hs,
 		status:   http.StatusNotFound,
+	}
+}
+
+func CheckedFor(status int, hs ...http.Handlers) http.Handler {
+	return &checked{
+		handlers: hs,
+		status:   status,
 	}
 }
 
