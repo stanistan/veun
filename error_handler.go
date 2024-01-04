@@ -6,30 +6,28 @@ import (
 	"html/template"
 )
 
+// ErrorHandler represents something that can handle an error.
 type ErrorHandler interface {
 	ViewForError(ctx context.Context, err error) (AsView, error)
 }
 
+// ErrorHandlerFunc is a function representation of ErrorHandler.
 type ErrorHandlerFunc func(context.Context, error) (AsView, error)
 
+// ViewForError implements ErrorHandler.
 func (f ErrorHandlerFunc) ViewForError(ctx context.Context, err error) (AsView, error) {
 	return f(ctx, err)
 }
 
+// PassThroughErrorHandler is a default error handler that
+// forwards the error out.
 func PassThroughErrorHandler() ErrorHandler {
 	return ErrorHandlerFunc(func(_ context.Context, err error) (AsView, error) {
 		return nil, err
 	})
 }
 
-func MakeErrorHandler(from any) ErrorHandler {
-	if eh, ok := from.(ErrorHandler); ok && eh != nil {
-		return eh
-	}
-
-	return PassThroughErrorHandler()
-}
-
+// RenderError renders an error given an ErrorHandler.
 func RenderError(ctx context.Context, h ErrorHandler, err error) (template.HTML, error) {
 	var empty template.HTML
 
@@ -48,7 +46,7 @@ func RenderError(ctx context.Context, h ErrorHandler, err error) (template.HTML,
 
 	out, err := Render(ctx, v)
 	if err != nil {
-		return empty, fmt.Errorf("renderError %T: %w", v, err)
+		return empty, fmt.Errorf("RenderError %T: %w", v, err)
 	}
 
 	return out, nil
