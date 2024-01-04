@@ -43,7 +43,7 @@ func Checked(hs ...http.Handler) http.Handler {
 	}
 }
 
-func CheckedFor(status int, hs ...http.Handlers) http.Handler {
+func CheckedFor(status int, hs ...http.Handler) http.Handler {
 	return &checked{
 		handlers: hs,
 		status:   status,
