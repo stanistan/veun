@@ -19,14 +19,6 @@ func (f ErrorHandlerFunc) ViewForError(ctx context.Context, err error) (AsView, 
 	return f(ctx, err)
 }
 
-// PassThroughErrorHandler is a default error handler that
-// forwards the error out.
-func PassThroughErrorHandler() ErrorHandler {
-	return ErrorHandlerFunc(func(_ context.Context, err error) (AsView, error) {
-		return nil, err
-	})
-}
-
 // RenderError renders an error given an ErrorHandler.
 func RenderError(ctx context.Context, h ErrorHandler, err error) (template.HTML, error) {
 	var empty template.HTML

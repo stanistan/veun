@@ -25,10 +25,6 @@ func newHandler(r request.Handler, opts []Option) handler {
 		option(&h)
 	}
 
-	if h.ErrorHandler == nil {
-		h.ErrorHandler = veun.PassThroughErrorHandler()
-	}
-
 	return h
 }
 

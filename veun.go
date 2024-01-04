@@ -22,10 +22,7 @@ type AsView interface {
 // Render takes a context and something that can become a View
 // and renders it.
 func Render(ctx context.Context, v AsView) (template.HTML, error) {
-	return (&View{
-		r:  renderable{v},
-		eh: PassThroughErrorHandler(),
-	}).render(ctx)
+	return V(v).render(ctx)
 }
 
 // V is a factory function that transforms any of its
@@ -43,24 +40,14 @@ func V(in any) *View {
 	case *View:
 		return t
 	case template.HTML:
-		return &View{
-			r:  Raw(t),
-			eh: PassThroughErrorHandler(),
-		}
+		return &View{r: Raw(t)}
 	case HTMLRenderable:
-		return &View{
-			r:  t,
-			eh: PassThroughErrorHandler(),
-		}
+		return &View{r: t}
 	case AsView:
-		return &View{
-			r:  renderable{t},
-			eh: PassThroughErrorHandler(),
-		}
+		return &View{r: renderable{t}}
 	}
 
 	return &View{
-		eh: PassThroughErrorHandler(),
-		r:  errViewInvalid{fmt.Errorf("can't construct %T", in)},
+		r: errViewInvalid{fmt.Errorf("can't construct %T", in)},
 	}
 }

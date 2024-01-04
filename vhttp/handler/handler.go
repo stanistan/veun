@@ -87,5 +87,5 @@ func (wr *responseWriter) WriteTo(w http.ResponseWriter) {
 		h[k] = v
 	}
 
-	w.Write(wr.written)
+	_, _ = w.Write(wr.written)
 }
