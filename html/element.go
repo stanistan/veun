@@ -7,7 +7,7 @@ import (
 	"github.com/stanistan/veun"
 )
 
-//go:generate ./generate-elements
+//go:generate ./generate-elements elements.txt
 
 func El(name string, attrs Attrs, content veun.AsView) veun.AsView {
 	return veun.Views{
