@@ -22,6 +22,8 @@ func newTemplate(name string) *template.Template {
 	return Slots{}.addToTemplate(context.TODO(), template.New(name))
 }
 
+var ErrNilTemplate = errors.New("nil template")
+
 // BasicTemplate encapsulates basic html templare rendering.
 type BasicTemplate struct {
 	Tpl  *template.Template
@@ -32,7 +34,7 @@ func (v BasicTemplate) AsHTML(_ context.Context) (template.HTML, error) {
 	var empty template.HTML
 
 	if v.Tpl == nil {
-		return empty, fmt.Errorf("nil template")
+		return empty, ErrNilTemplate
 	}
 
 	var bs bytes.Buffer
@@ -57,12 +59,15 @@ func (v Template) AsHTML(ctx context.Context) (template.HTML, error) {
 	}.AsHTML(ctx)
 
 	if err != nil {
+
 		var tErr tt.ExecError
 		if errors.As(err, &tErr) {
-			err = errors.Unwrap(tErr.Err)
+			if unwrapped := errors.Unwrap(tErr.Err); unwrapped != nil {
+				err = unwrapped
+			}
 		}
 
-		return out, fmt.Errorf("in template '%s': %w", v.Tpl.Name(), err)
+		return out, fmt.Errorf("tpl '%s': %w", tplName(v.Tpl), err)
 	}
 
 	return out, nil
@@ -88,4 +93,12 @@ func (s Slots) addToTemplate(ctx context.Context, t *template.Template) *templat
 	}
 
 	return t.Funcs(template.FuncMap{"slot": s.renderSlot(ctx)})
+}
+
+func tplName(t *template.Template) string {
+	if t == nil {
+		return "<nil>"
+	}
+
+	return t.Name()
 }

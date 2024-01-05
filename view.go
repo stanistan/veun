@@ -66,12 +66,12 @@ func (r renderable) AsHTML(ctx context.Context) (template.HTML, error) {
 
 	v, err := r.r.View(ctx)
 	if err != nil {
-		return empty, fmt.Errorf("%T View: %w", r.r, err)
+		return empty, fmt.Errorf("View(%T(: %w", r.r, err)
 	}
 
 	out, err := v.render(ctx)
 	if err != nil {
-		return out, fmt.Errorf("Render: %w", err)
+		return out, fmt.Errorf("Render(%T): %w", r.r, err)
 	}
 
 	return out, nil
