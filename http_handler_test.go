@@ -17,11 +17,11 @@ import (
 
 var htmlTpl = veun.MustParseTemplate("html", `<html><body>{{ slot "body" }}</body></html>`)
 
-type html struct {
+type htmlView struct {
 	Body veun.AsView
 }
 
-func (v html) View(_ context.Context) (*veun.View, error) {
+func (v htmlView) View(_ context.Context) (*veun.View, error) {
 	return veun.V(veun.Template{
 		Tpl:   htmlTpl,
 		Slots: veun.Slots{"body": v.Body},
@@ -37,7 +37,7 @@ func HTML(rh request.Handler) http.Handler {
 			return nil, next, nil
 		}
 
-		return html{Body: v}, next, nil
+		return htmlView{Body: v}, next, nil
 	})
 }
 
