@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 cat << EOF > elements.go
 //
 // Code generated DO NOT EDIT.

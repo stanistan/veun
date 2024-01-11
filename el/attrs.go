@@ -1,4 +1,4 @@
-package html
+package el
 
 import (
 	"html/template"

@@ -1,4 +1,4 @@
-package html_test
+package el_test
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/alecthomas/assert/v2"
 
 	"github.com/stanistan/veun"
-	"github.com/stanistan/veun/html"
+	"github.com/stanistan/veun/el"
 )
 
 func TestHTMLRender(t *testing.T) {
@@ -18,22 +18,22 @@ func TestHTMLRender(t *testing.T) {
 		out string
 	}{
 		{
-			html.Div(),
+			el.Div(),
 			"<div></div>",
 		},
 		{
-			html.Div().Content(html.Span().InnerText("banana")),
+			el.Div().Content(el.Span().InnerText("banana")),
 			"<div><span>banana</span></div>",
 		},
 		{
-			html.Div().
-				Content(html.Span().InnerText("banana")).
+			el.Div().
+				Content(el.Span().InnerText("banana")).
 				Class("foo").
 				Attr("data-something", "else"),
 			`<div class="foo" data-something="else"><span>banana</span></div>`,
 		},
 		{
-			html.Text("<div>"),
+			el.Text("<div>"),
 			`&lt;div&gt;`,
 		},
 	} {

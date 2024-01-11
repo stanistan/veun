@@ -1,8 +1,8 @@
 //
 // Code generated DO NOT EDIT.
 //
-// Generated in html/element.go:11 using elements.txt
-package html
+// Generated in el/element.go:11 using elements.txt
+package el
 
 // A constructs a veun representation of the a html element.
 //
