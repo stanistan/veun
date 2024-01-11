@@ -18,12 +18,19 @@ func TestHTMLRender(t *testing.T) {
 		out string
 	}{
 		{
-			html.Div(nil, nil),
+			html.Div(),
 			"<div></div>",
 		},
 		{
-			html.Div(html.Attrs{"class": "blue"}, nil),
-			`<div class="blue"></div>`,
+			html.Div().Content(html.Span().InnerText("banana")),
+			"<div><span>banana</span></div>",
+		},
+		{
+			html.Div().
+				Content(html.Span().InnerText("banana")).
+				Class("foo").
+				Attr("data-something", "else"),
+			`<div class="foo" data-something="else"><span>banana</span></div>`,
 		},
 		{
 			html.Text("<div>"),

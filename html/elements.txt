@@ -1,7 +1,10 @@
 A
+Area
 Article
 Aside
+Base
 Body
+Br
 Caption
 Code
 Dd
@@ -10,6 +13,7 @@ Div
 Dl
 Dt
 Em
+Embed
 H1
 H2
 H3
@@ -18,7 +22,10 @@ H5
 H6
 HTML
 Head
+Hr
 Img
+Input
+Meta
 Li
 Link
 Ol
@@ -27,6 +34,7 @@ Picture
 Pre
 Script
 Section
+Source
 Span
 Strong
 Style

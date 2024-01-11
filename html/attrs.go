@@ -2,30 +2,23 @@ package html
 
 import (
 	"html/template"
-	"strings"
+	"io"
+)
+
+var (
+	space       = []byte(" ")
+	doubleQuote = []byte(`"`)
+	equalsQuote = []byte(`="`)
 )
 
 type Attrs map[string]string
 
-func openingTag(name string, a Attrs) string {
-	var sb strings.Builder
-
-	sb.WriteString("<")
-	sb.WriteString(name)
-
+func (a Attrs) writeTo(w io.Writer) {
 	for k, v := range a {
-		sb.WriteString(" ")
-		template.HTMLEscape(&sb, []byte(k))
-		sb.WriteString(`="`)
-		template.HTMLEscape(&sb, []byte(v))
-		sb.WriteString(`"`)
+		_, _ = w.Write(space)
+		template.HTMLEscape(w, []byte(k))
+		_, _ = w.Write(equalsQuote)
+		template.HTMLEscape(w, []byte(v))
+		_, _ = w.Write(doubleQuote)
 	}
-
-	sb.WriteString(">")
-
-	return sb.String()
-}
-
-func closingTag(name string) string {
-	return "</" + name + ">"
 }
