@@ -61,6 +61,10 @@ func (e *Element) InnerText(t string) *Element {
 	return e.Content(Text(t))
 }
 
+func (e *Element) In(parent *Element) *Element {
+	return parent.Content(e)
+}
+
 // El is a constructor for an Element.
 func El(name string, short bool) *Element {
 	return &Element{tag: name}
