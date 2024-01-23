@@ -34,6 +34,7 @@ func (c *checked) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for _, next := range c.handlers {
 		w2 = newResponseWriter()
 		next.ServeHTTP(w2, r)
+
 		if w2.status != c.status {
 			break
 		}
@@ -56,6 +57,7 @@ var _ http.ResponseWriter = &responseWriter{}
 
 func (wr *responseWriter) Write(bs []byte) (int, error) {
 	wr.written = append(wr.written, bs...)
+
 	return len(bs), nil
 }
 

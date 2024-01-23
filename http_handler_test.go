@@ -97,7 +97,7 @@ func TestHTTPHandler(t *testing.T) {
 	var sendRequest = func(t *testing.T, to string) (string, int, error) {
 		t.Helper()
 
-		req, err := http.NewRequestWithContext(context.TODO(), "GET", server.URL+to, nil)
+		req, err := http.NewRequestWithContext(context.TODO(), http.MethodGet, server.URL+to, nil)
 		assert.NoError(t, err)
 
 		res, err := http.DefaultClient.Do(req)

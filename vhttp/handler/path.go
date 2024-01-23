@@ -4,7 +4,7 @@ import "net/http"
 
 // OnlyRoot will only apply the provided handler on the root URL path.
 //
-// This is usefull for mounting a handler at the '/' path.
+// This is useful for mounting a handler at the '/' path.
 //
 //	http.Handle("/", OnlyRoot(...))
 //
@@ -13,6 +13,8 @@ var OnlyRoot = MatchesPath(func(path string) bool {
 	return path == "/"
 })
 
+// ExceptRoot will apply the provided handler on everything
+// except the root path.
 var ExceptRoot = MatchesPath(func(path string) bool {
 	return path != "/"
 })

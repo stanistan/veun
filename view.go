@@ -41,15 +41,15 @@ func (r *View) render(ctx context.Context) (template.HTML, error) {
 	return out, nil
 }
 
-type errViewInvalid struct {
+type viewInvalidError struct {
 	Err error
 }
 
-func (e errViewInvalid) Error() string {
+func (e viewInvalidError) Error() string {
 	return e.Err.Error()
 }
 
-func (e errViewInvalid) AsHTML(_ context.Context) (template.HTML, error) {
+func (e viewInvalidError) AsHTML(_ context.Context) (template.HTML, error) {
 	return template.HTML(""), e
 }
 

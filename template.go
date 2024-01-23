@@ -30,6 +30,9 @@ type BasicTemplate struct {
 	Data any
 }
 
+// AsHTML transforms a BasicTemplate into html.
+//
+//nolint:gosec
 func (v BasicTemplate) AsHTML(_ context.Context) (template.HTML, error) {
 	var empty template.HTML
 
@@ -53,13 +56,8 @@ type Template struct {
 }
 
 func (v Template) AsHTML(ctx context.Context) (template.HTML, error) {
-	out, err := BasicTemplate{
-		Tpl:  v.Slots.addToTemplate(ctx, v.Tpl),
-		Data: v.Data,
-	}.AsHTML(ctx)
-
+	out, err := BasicTemplate{Tpl: v.Slots.addToTemplate(ctx, v.Tpl), Data: v.Data}.AsHTML(ctx)
 	if err != nil {
-
 		var tErr tt.ExecError
 		if errors.As(err, &tErr) {
 			if unwrapped := errors.Unwrap(tErr.Err); unwrapped != nil {

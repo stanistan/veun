@@ -2,6 +2,7 @@ package veun
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"html/template"
 )
@@ -48,6 +49,10 @@ func V(in any) *View {
 	}
 
 	return &View{
-		r: errViewInvalid{fmt.Errorf("can't construct %T", in)},
+		r: viewInvalidError{
+			Err: fmt.Errorf("invalid input %T: %w", in, errInvalidVParam),
+		},
 	}
 }
+
+var errInvalidVParam = errors.New("can't consturct View")

@@ -13,6 +13,7 @@ import (
 )
 
 func TestHTMLRender(t *testing.T) {
+	t.Parallel()
 	for idx, testCase := range []struct {
 		in  veun.AsView
 		out string
@@ -39,6 +40,7 @@ func TestHTMLRender(t *testing.T) {
 	} {
 		testCase := testCase
 		t.Run(fmt.Sprintf("test i-%d", idx), func(t *testing.T) {
+			t.Parallel()
 			out, err := veun.Render(context.Background(), testCase.in)
 			assert.NoError(t, err)
 			assert.Equal(t, template.HTML(testCase.out), out)

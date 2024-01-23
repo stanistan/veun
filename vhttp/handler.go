@@ -20,7 +20,7 @@ func HandlerFunc(r request.HandlerFunc, opts ...Option) http.Handler {
 }
 
 func newHandler(r request.Handler, opts []Option) handler {
-	h := handler{RequestHandler: r}
+	h := handler{RequestHandler: r, ErrorHandler: nil}
 	for _, option := range opts {
 		option(&h)
 	}
@@ -57,12 +57,14 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	v, next, err := h.RequestHandler.ViewForRequest(r)
 	if err != nil {
 		h.handleError(r.Context(), w, err)
+
 		return
 	}
 
 	html, err := veun.Render(r.Context(), v)
 	if err != nil {
 		h.handleError(r.Context(), w, err)
+
 		return
 	}
 
@@ -81,11 +83,13 @@ func (h handler) handleError(ctx context.Context, w http.ResponseWriter, err err
 	if rErr == nil && len(html) > 0 {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte(html))
+
 		return
 	}
 
 	// TODO: grab the logger from the context
 	slog.Error("handler failed", "err", err)
+
 	code := http.StatusInternalServerError
 	http.Error(w, http.StatusText(code), code)
 }

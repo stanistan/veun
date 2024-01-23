@@ -29,6 +29,7 @@ func (e *Element) View(ctx context.Context) (*veun.View, error) {
 
 func (e *Element) Attrs(a Attrs) *Element {
 	e.attrs = a
+
 	return e
 }
 
@@ -36,7 +37,9 @@ func (e *Element) Attr(name, value string) *Element {
 	if e.attrs == nil {
 		e.attrs = Attrs{}
 	}
+
 	e.attrs[name] = value
+
 	return e
 }
 
@@ -65,17 +68,13 @@ func (e *Element) In(parent *Element) *Element {
 	return parent.Content(e)
 }
 
-// El is a constructor for an Element.
-func El(name string, short bool) *Element {
-	return &Element{tag: name}
-}
-
-func Text(in string) veun.AsView {
+func Text(in string) veun.AsView { //nolint:ireturn
 	return text(template.HTMLEscapeString(in))
 }
 
 type text string
 
+//nolint:gosec
 func (t text) AsHTML(_ context.Context) (template.HTML, error) {
 	return template.HTML(t), nil
 }
