@@ -2,13 +2,10 @@ package el
 
 import (
 	"context"
-	"html/template"
 	"strings"
 
 	"github.com/stanistan/veun"
 )
-
-//go:generate ./generate-elements elements.txt
 
 // Element is a representation of an HTML Element that is also a veun.View.
 type Element struct {
@@ -17,12 +14,15 @@ type Element struct {
 	content veun.AsView
 }
 
-var _ veun.AsView = &Element{}
+var (
+	_ veun.AsView  = &Element{}
+	_ el[*Element] = &Element{}
+)
 
 // View constructs a [*veun.View] from an Element.
 func (e *Element) View(ctx context.Context) (*veun.View, error) {
 	return veun.Views{
-		veun.Raw(openingTag(e.tag, e.attrs)),
+		veun.Raw(openingTag(e.tag, e.attrs, ">")),
 		e.content,
 		veun.Raw(closingTag(e.tag)),
 	}.View(ctx)
@@ -76,29 +76,13 @@ func (e *Element) In(parent *Element) *Element {
 	return parent.Content(e)
 }
 
-// Text creates a HTML escaped text view.
-func Text(in string) veun.AsView { //nolint:ireturn
-	return text(template.HTMLEscapeString(in))
-}
-
-type text string
-
-//nolint:gosec
-func (t text) AsHTML(_ context.Context) (template.HTML, error) {
-	return template.HTML(t), nil
-}
-
-func (t text) View(_ context.Context) (*veun.View, error) {
-	return veun.V(t), nil
-}
-
-func openingTag(name string, a Attrs) string {
+func openingTag(name string, a Attrs, end string) string {
 	var sb strings.Builder
 
 	sb.WriteString("<")
 	sb.WriteString(name)
 	a.writeTo(&sb)
-	sb.WriteString(">")
+	sb.WriteString(end)
 
 	return sb.String()
 }

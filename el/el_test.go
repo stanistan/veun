@@ -37,6 +37,14 @@ func TestHTMLRender(t *testing.T) {
 			el.Text("<div>"),
 			`&lt;div&gt;`,
 		},
+		{
+			el.Br().In(el.Div()),
+			`<div><br /></div>`,
+		},
+		{
+			el.Img().Attr("src", "/foo.png"),
+			`<img src="/foo.png" />`,
+		},
 	} {
 		testCase := testCase
 		t.Run(fmt.Sprintf("test i-%d", idx), func(t *testing.T) {
