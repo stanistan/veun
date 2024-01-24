@@ -21,7 +21,7 @@ func (r Raw) AsHTML(_ context.Context) (template.HTML, error) {
 // Views is a collection of AsView.
 type Views []AsView
 
-// Views creates a *View, which is also an AsView.
+// View creates a *View, which is also an AsView.
 func (vs Views) View(_ context.Context) (*View, error) {
 	return V(vs), nil
 }

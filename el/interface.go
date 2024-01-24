@@ -1,8 +1,8 @@
 package el
 
 type el[T any] interface {
-	In(*Element) *Element
-	Class(string) T
-	Attrs(Attrs) T
-	Attr(string, string) T
+	In(parent *Element) *Element
+	Class(name string) T
+	Attrs(a Attrs) T
+	Attr(name string, value string) T
 }

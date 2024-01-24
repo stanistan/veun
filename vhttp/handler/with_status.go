@@ -12,6 +12,6 @@ type statusHandler struct {
 	status int
 }
 
-func (h statusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h statusHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(h.status)
 }

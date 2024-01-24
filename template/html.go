@@ -8,6 +8,8 @@ import (
 	"html/template"
 )
 
+// ErrNilTemplate is an error for when there is no
+// template provided to render as HTML.
 var ErrNilTemplate = errors.New("nil template")
 
 // HTMLTemplate encapsulates basic html template rendering.

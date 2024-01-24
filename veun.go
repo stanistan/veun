@@ -1,3 +1,5 @@
+// Package veun is a small library to enable composition based
+// template rendering of go functions and types into HTML.
 package veun
 
 import (
@@ -10,28 +12,28 @@ import (
 // AsV is an alias for the AsView interface.
 type AsV = AsView
 
-// HTMLRenderable represents anything that can be rendered to HTML.
+// HTMLRenderable represents anything that can be rendered to [template.HTML].
 type HTMLRenderable interface {
 	AsHTML(ctx context.Context) (template.HTML, error)
 }
 
-// AsView is anything that can be represented as a View.
+// AsView is anything that can be represented as a [*View].
 type AsView interface {
 	View(ctx context.Context) (*View, error)
 }
 
-// Render takes a context and something that can become a View
-// and renders it.
+// Render renders a view tree into HTML given a context.
 func Render(ctx context.Context, v AsView) (template.HTML, error) {
 	return V(v).render(ctx)
 }
 
 // V is a factory function that transforms any of its
-// inputs into a [[View]].
+// inputs into a [View].
 //
 // If this is not view convertible, this call will succeed,
-// but any call go [[Render]] this will fail. This is by
-// design to allow for error handling during composition.
+// but any call to [Render] will fail.
+//
+// This is by design to allow for error handling during composition.
 func V(in any) *View {
 	if in == nil {
 		return nil

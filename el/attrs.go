@@ -11,6 +11,7 @@ var (
 	equalsQuote = []byte(`="`)
 )
 
+// Attrs represents an attribute map.
 type Attrs map[string]string
 
 func (a Attrs) writeTo(w io.Writer) {
