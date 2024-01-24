@@ -48,7 +48,7 @@ func (v BasicTemplate) AsHTML(_ context.Context) (template.HTML, error) {
 	return template.HTML(bs.String()), nil
 }
 
-// Template encapsulates basic html template rendering, but also includes Slots.
+// Template encapsulates basic html template rendering, including Slots.
 type Template struct {
 	Tpl   *template.Template
 	Slots Slots
