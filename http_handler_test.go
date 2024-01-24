@@ -11,22 +11,10 @@ import (
 	"github.com/alecthomas/assert/v2"
 
 	"github.com/stanistan/veun"
+	"github.com/stanistan/veun/el"
 	"github.com/stanistan/veun/vhttp"
 	"github.com/stanistan/veun/vhttp/request"
 )
-
-var htmlTpl = veun.MustParseTemplate("html", `<html><body>{{ slot "body" }}</body></html>`)
-
-type htmlView struct {
-	Body veun.AsView
-}
-
-func (v htmlView) View(_ context.Context) (*veun.View, error) {
-	return veun.V(veun.Template{
-		Tpl:   htmlTpl,
-		Slots: veun.Slots{"body": v.Body},
-	}), nil
-}
 
 func HTML(rh request.Handler) http.Handler {
 	return vhttp.HandlerFunc(func(r *http.Request) (veun.AsView, http.Handler, error) {
@@ -37,22 +25,14 @@ func HTML(rh request.Handler) http.Handler {
 			return nil, next, nil
 		}
 
-		return htmlView{Body: v}, next, nil
+		return el.HTML().Content(
+			el.Body().Content(v),
+		), next, nil
 	})
 }
 
-var errorViewTpl = veun.MustParseTemplate("errorView", `Error: {{ . }}`)
-
-type errorView struct {
-	Error error
-}
-
-func (v errorView) View(_ context.Context) (*veun.View, error) {
-	return veun.V(veun.Template{Tpl: errorViewTpl, Data: v.Error}), nil
-}
-
 func newErrorView(_ context.Context, err error) (veun.AsView, error) {
-	return errorView{Error: err}, nil
+	return el.Text("Error: " + err.Error()), nil
 }
 
 func TestHTTPHandler(t *testing.T) {

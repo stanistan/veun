@@ -8,6 +8,7 @@ import (
 	"github.com/alecthomas/assert/v2"
 
 	. "github.com/stanistan/veun"
+	t "github.com/stanistan/veun/template"
 )
 
 type ContainerView2 struct {
@@ -15,9 +16,9 @@ type ContainerView2 struct {
 }
 
 func (v ContainerView2) View(ctx context.Context) (*View, error) {
-	return V(Template{
+	return V(t.Template{
 		Tpl:   containerViewTpl,
-		Slots: Slots{"heading": v.Heading, "body": v.Body},
+		Slots: t.Slots{"heading": v.Heading, "body": v.Body},
 	}), nil
 }
 

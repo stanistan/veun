@@ -8,13 +8,14 @@ import (
 	"github.com/alecthomas/assert/v2"
 
 	. "github.com/stanistan/veun"
+	t "github.com/stanistan/veun/template"
 )
 
 type ContainerView struct {
 	Heading, Body AsView
 }
 
-var containerViewTpl = MustParseTemplate("containerView", `<div>
+var containerViewTpl = t.MustParse("containerView", `<div>
 	<div class="heading">{{ slot "heading" }}</div>
 	<div class="body">{{ slot "body" }}</div>
 </div>`)
@@ -32,7 +33,7 @@ func tplWithRealSlotFunc(ctx context.Context, tpl *template.Template, slots map[
 }
 
 func (v ContainerView) AsHTML(ctx context.Context) (template.HTML, error) {
-	return BasicTemplate{
+	return t.HTMLTemplate{
 		Tpl: tplWithRealSlotFunc(ctx, containerViewTpl, map[string]AsView{
 			"heading": v.Heading,
 			"body":    v.Body,
@@ -51,13 +52,13 @@ var childViewTemplate = template.Must(
 type ChildView1 struct{}
 
 func (v ChildView1) View(_ context.Context) (*View, error) {
-	return V(Template{Tpl: childViewTemplate, Data: "HEADING"}), nil
+	return V(t.Template{Tpl: childViewTemplate, Data: "HEADING"}), nil
 }
 
 type ChildView2 struct{}
 
 func (v ChildView2) View(_ context.Context) (*View, error) {
-	return V(Template{Tpl: childViewTemplate, Data: "BODY"}), nil
+	return V(t.Template{Tpl: childViewTemplate, Data: "BODY"}), nil
 }
 
 func TestRenderContainer(t *testing.T) {

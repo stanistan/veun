@@ -10,13 +10,14 @@ import (
 	"github.com/alecthomas/assert/v2"
 
 	. "github.com/stanistan/veun"
+	t "github.com/stanistan/veun/template"
 )
 
 type ExpensiveViewData struct {
 	Title string `json:"title"`
 }
 
-var expensiveViewTpl = MustParseTemplate("expensiveView", `{{ .Title }} success`)
+var expensiveViewTpl = t.MustParse("expensiveView", `{{ .Title }} success`)
 
 type ExpensiveView struct {
 	Data chan ExpensiveViewData
@@ -53,7 +54,7 @@ func (v *ExpensiveView) View(ctx context.Context) (*View, error) {
 	case err := <-v.Err:
 		return nil, err
 	case data := <-v.Data:
-		return V(Template{Tpl: expensiveViewTpl, Data: data}), nil
+		return V(t.Template{Tpl: expensiveViewTpl, Data: data}), nil
 	}
 }
 

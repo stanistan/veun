@@ -7,6 +7,7 @@ import (
 
 	"github.com/alecthomas/assert/v2"
 	. "github.com/stanistan/veun"
+	t "github.com/stanistan/veun/template"
 )
 
 type Person struct {
@@ -26,7 +27,7 @@ var personViewTpl = template.Must(
 )
 
 func (v *personView) View(_ context.Context) (*View, error) {
-	return V(Template{Tpl: personViewTpl, Data: v.Person}), nil
+	return V(t.Template{Tpl: personViewTpl, Data: v.Person}), nil
 }
 
 func TestRenderPerson(t *testing.T) {
