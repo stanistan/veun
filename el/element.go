@@ -19,6 +19,7 @@ type Element struct {
 
 var _ veun.AsView = &Element{}
 
+// View constructs a [*veun.View] from an Element.
 func (e *Element) View(ctx context.Context) (*veun.View, error) {
 	return veun.Views{
 		veun.Raw(openingTag(e.tag, e.attrs)),
@@ -27,12 +28,14 @@ func (e *Element) View(ctx context.Context) (*veun.View, error) {
 	}.View(ctx)
 }
 
+// Attrs sets the attributes for the element.
 func (e *Element) Attrs(a Attrs) *Element {
 	e.attrs = a
 
 	return e
 }
 
+// Attr sets a single attribute on the element.
 func (e *Element) Attr(name, value string) *Element {
 	if e.attrs == nil {
 		e.attrs = Attrs{}
@@ -43,10 +46,12 @@ func (e *Element) Attr(name, value string) *Element {
 	return e
 }
 
+// Class sets the class attribute.
 func (e *Element) Class(name string) *Element {
 	return e.Attr("class", name)
 }
 
+// Content sets the inner content of the element.
 func (e *Element) Content(cs ...veun.AsView) *Element {
 	switch len(cs) {
 	case 0:
@@ -60,14 +65,18 @@ func (e *Element) Content(cs ...veun.AsView) *Element {
 	return e
 }
 
+// InnerText sets the content to be html escaped text.
 func (e *Element) InnerText(t string) *Element {
 	return e.Content(Text(t))
 }
 
+// In encloses the current element in a parent, returning
+// the parent.
 func (e *Element) In(parent *Element) *Element {
 	return parent.Content(e)
 }
 
+// Text creates a HTML escaped text view.
 func Text(in string) veun.AsView { //nolint:ireturn
 	return text(template.HTMLEscapeString(in))
 }
