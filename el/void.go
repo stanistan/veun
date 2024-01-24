@@ -20,7 +20,7 @@ var (
 
 // View constructs a [*veun.View] from a VoidElement.
 func (e *VoidElement) View(ctx context.Context) (*veun.View, error) {
-	return veun.Raw(openingTag(e.tag, e.attrs, " />")).View(ctx)
+	return veun.Raw(openingTag(e.tag, e.attrs, ">")).View(ctx)
 }
 
 // Attrs sets the attributes for the element.

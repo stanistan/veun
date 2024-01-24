@@ -39,11 +39,11 @@ func TestHTMLRender(t *testing.T) {
 		},
 		{
 			el.Br().In(el.Div()),
-			`<div><br /></div>`,
+			`<div><br></div>`,
 		},
 		{
 			el.Img().Attr("src", "/foo.png"),
-			`<img src="/foo.png" />`,
+			`<img src="/foo.png">`,
 		},
 	} {
 		testCase := testCase
