@@ -79,17 +79,24 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h handler) handleError(ctx context.Context, w http.ResponseWriter, err error) {
+	// N.B. if we successfully executed our error handler
+	// and had some actual html output, we write/execute it.
 	html, rErr := veun.RenderError(ctx, h.ErrorHandler, err)
 	if rErr == nil && len(html) > 0 {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(errorCode)
 		_, _ = w.Write([]byte(html))
 
 		return
+	} else if rErr != nil {
+		slog.Error("veun error handler error", "err", rErr)
 	}
 
-	// TODO: grab the logger from the context
-	slog.Error("handler failed", "err", err)
-
-	code := http.StatusInternalServerError
-	http.Error(w, http.StatusText(code), code)
+	// If we can't execute a successful error handler,
+	// we do the standard internal service error.
+	slog.Error("veun unhandled http error", "err", err)
+	http.Error(w, http.StatusText(errorCode), errorCode)
 }
+
+const (
+	errorCode = http.StatusInternalServerError // default error code
+)
