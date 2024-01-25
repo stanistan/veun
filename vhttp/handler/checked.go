@@ -1,6 +1,8 @@
 package handler
 
-import "net/http"
+import (
+	"net/http"
+)
 
 // Checked will continue on the handler chain if the
 // first handler given ended up executing a 404.
@@ -70,13 +72,13 @@ func (wr *responseWriter) Header() http.Header {
 }
 
 func (wr *responseWriter) WriteTo(w http.ResponseWriter) {
-	if wr.status != 0 {
-		w.WriteHeader(wr.status)
+
+	for k, v := range wr.h {
+		w.Header()[k] = v
 	}
 
-	h := w.Header()
-	for k, v := range wr.h {
-		h[k] = v
+	if wr.status != 0 {
+		w.WriteHeader(wr.status)
 	}
 
 	_, _ = w.Write(wr.written)
