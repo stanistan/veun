@@ -72,7 +72,6 @@ func (wr *responseWriter) Header() http.Header {
 }
 
 func (wr *responseWriter) WriteTo(w http.ResponseWriter) {
-
 	for k, v := range wr.h {
 		w.Header()[k] = v
 	}
