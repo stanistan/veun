@@ -22,7 +22,7 @@ var (
 // View constructs a [*veun.View] from an Element.
 func (e *Element) View(ctx context.Context) (*veun.View, error) {
 	return veun.Views{
-		veun.Raw(openingTag(e.tag, e.attrs, ">")),
+		veun.Raw(openingTag(e.tag, e.attrs)),
 		e.content,
 		veun.Raw(closingTag(e.tag)),
 	}.View(ctx)
@@ -76,13 +76,13 @@ func (e *Element) In(parent *Element) *Element {
 	return parent.Content(e)
 }
 
-func openingTag(name string, a Attrs, end string) string {
+func openingTag(name string, a Attrs) string {
 	var sb strings.Builder
 
 	sb.WriteString("<")
 	sb.WriteString(name)
 	a.writeTo(&sb)
-	sb.WriteString(end)
+	sb.WriteString(">")
 
 	return sb.String()
 }
