@@ -51,3 +51,13 @@ func AsViews[T AsView](ts []T) Views {
 
 	return vs
 }
+
+// MapToViews transforms a slice of T (any) with a function into Views.
+func MapToViews[T any, V AsView](ts []T, f func(T) V) Views {
+	vs := make(Views, len(ts))
+	for idx, v := range ts {
+		vs[idx] = f(v)
+	}
+
+	return vs
+}
