@@ -41,3 +41,13 @@ func (vs Views) AsHTML(ctx context.Context) (template.HTML, error) {
 
 	return out, nil
 }
+
+// AsViews transforms a slice of T (implementing AsView) into Views.
+func AsViews[T AsView](ts []T) Views {
+	vs := make(Views, len(ts))
+	for idx, v := range ts {
+		vs[idx] = v
+	}
+
+	return vs
+}
