@@ -7,45 +7,49 @@ import (
 	"github.com/stanistan/veun"
 )
 
-// Param represents a parameter to a non-void HTML element.
-type Param interface {
-	applyToElement(e *element)
+type element[T elementKind] struct {
+	tag   tag
+	inner T
 }
 
-type element struct {
-	tag      string
-	attrs    Attrs
-	children []veun.AsView
+func (e element[T]) View(_ context.Context) (*veun.View, error) {
+	return veun.V(e), nil
 }
 
-func (e element) apply(params []Param) element {
-	for _, param := range params {
-		param.applyToElement(&e)
+func (e element[T]) AsHTML(ctx context.Context) (template.HTML, error) {
+	return e.inner.AsHTML(ctx, e.tag)
+}
+
+func (e *element[T]) attrs(fn func(Attrs)) {
+	e.tag.applyAttrs(fn)
+}
+
+func newElement[T elementKind](t string) element[T] {
+	return element[T]{tag: tag{name: t}}
+}
+
+func newElementWithChildren(t string, ps []Param) element[nodeChildren] {
+	e := newElement[nodeChildren](t)
+	for _, p := range ps {
+		p.applyToElement(&e)
 	}
 
 	return e
 }
 
-func (e element) View(_ context.Context) (*veun.View, error) {
-	return veun.V(e), nil
-}
-
-//nolint:gosec
-func (e element) AsHTML(ctx context.Context) (template.HTML, error) {
-	content, err := veun.Render(ctx, veun.Views(e.children))
-	if err != nil {
-		return content, err
+func newVoidElement(t string, ps []VoidParam) element[void] {
+	e := newElement[void](t)
+	for _, p := range ps {
+		p.applyToVoidElement(&e)
 	}
 
-	return template.HTML("<"+e.tag+e.attrs.render()+">") +
-		content +
-		template.HTML("</"+e.tag+">"), nil
+	return e
 }
 
 // Content is a group of [veun.AsView] it can also be applied to a
 // non-void HTML element, such as [Div].
 type Content []veun.AsView
 
-func (v Content) applyToElement(e *element) {
-	e.children = append(e.children, v...)
+func (v Content) applyToElement(e *element[nodeChildren]) {
+	e.inner = append(e.inner, v...)
 }

@@ -60,6 +60,26 @@ func TestElementExpRender(t *testing.T) {
 			el.Hr{},
 			"<hr>",
 		},
+		{
+			el.Div{
+				el.Class("foo", "bar", "baz"),
+			},
+			`<div class="foo bar baz"></div>`,
+		},
+		{
+			el.Div{
+				el.Attr{"class", "banana"},
+				el.Class("foo", "bar", "baz"),
+			},
+			`<div class="foo bar baz banana"></div>`,
+		},
+		{
+			el.Div{
+				el.Class("foo", "bar", "baz"),
+				el.Attr{"class", "banana"},
+			},
+			`<div class="banana"></div>`,
+		},
 	} {
 		testCase := testCase
 		t.Run(fmt.Sprintf("test i-%d", idx), func(t *testing.T) {

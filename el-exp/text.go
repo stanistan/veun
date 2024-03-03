@@ -10,8 +10,8 @@ import (
 // Text represents any text that should be HTML escaped.
 type Text string
 
-func (t Text) applyToElement(e *element) {
-	e.children = append(e.children, t)
+func (t Text) applyToElement(e *element[nodeChildren]) {
+	e.inner = append(e.inner, t)
 }
 
 // AsHTML implements [veun.HTMLRenderable] for [Text].
