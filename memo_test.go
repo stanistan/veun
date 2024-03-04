@@ -13,7 +13,7 @@ import (
 
 func TestMemo(t *testing.T) {
 	var (
-		in   = el.Div().InnerText("memo")
+		in   = el.Div{el.Text("memo")}
 		view = veun.MustMemo(in)
 	)
 

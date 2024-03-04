@@ -9,7 +9,7 @@ import (
 	"github.com/alecthomas/assert/v2"
 
 	"github.com/stanistan/veun"
-	"github.com/stanistan/veun/el-exp"
+	"github.com/stanistan/veun/el"
 )
 
 func TestElementExpRender(t *testing.T) {

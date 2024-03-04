@@ -25,9 +25,13 @@ func HTML(rh request.Handler) http.Handler {
 			return nil, next, nil
 		}
 
-		return el.HTML().Content(
-			el.Body().Content(v),
-		), next, nil
+		return el.HTML{
+			el.Body{
+				el.Content{
+					v,
+				},
+			},
+		}, next, nil
 	})
 }
 
