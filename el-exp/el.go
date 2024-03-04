@@ -1,8 +1,16 @@
 // Package el contains types representing HTML elements.
 //
-// This is a separate implementation than github.com/stanistan/veun/el where that
-// package is based on function composition and this one is based on struct
-// composition.
+// Each element is represented by a type containing
+// combinations to create it.
+//
+// It allows to write our HTML tree in a very familiar pattern:
+//
+//	view := el.Div{
+//		el.Class("foo", "bar"),
+//		el.P{
+//			el.Text("hi!"),
+//		},
+//	})
 //
 // Most of the contents in this package are generated.
 package el
