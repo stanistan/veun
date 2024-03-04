@@ -2,91 +2,42 @@ package el
 
 import (
 	"context"
-	"strings"
+	"html/template"
 
 	"github.com/stanistan/veun"
 )
 
-// Element is a representation of an HTML Element that is also a veun.View.
-type Element struct {
-	tag     string
-	attrs   Attrs
-	content veun.AsView
+type element[T elementKind] struct {
+	tag   tag
+	inner T
 }
 
-var (
-	_ veun.AsView  = &Element{}
-	_ el[*Element] = &Element{}
-)
-
-// View constructs a [*veun.View] from an Element.
-func (e *Element) View(ctx context.Context) (*veun.View, error) {
-	return veun.Views{
-		veun.Raw(openingTag(e.tag, e.attrs)),
-		e.content,
-		veun.Raw(closingTag(e.tag)),
-	}.View(ctx)
+func (e element[T]) View(_ context.Context) (*veun.View, error) {
+	return veun.V(e), nil
 }
 
-// Attrs sets the attributes for the element.
-func (e *Element) Attrs(a Attrs) *Element {
-	e.attrs = a
-
-	return e
+func (e element[T]) AsHTML(ctx context.Context) (template.HTML, error) {
+	return e.inner.AsHTML(ctx, e.tag)
 }
 
-// Attr sets a single attribute on the element.
-func (e *Element) Attr(name, value string) *Element {
-	if e.attrs == nil {
-		e.attrs = Attrs{}
-	}
-
-	e.attrs[name] = value
-
-	return e
+func (e *element[T]) attrs(fn func(Attrs)) {
+	e.tag.applyAttrs(fn)
 }
 
-// Class sets the class attribute.
-func (e *Element) Class(name string) *Element {
-	return e.Attr("class", name)
-}
-
-// Content sets the inner content of the element.
-func (e *Element) Content(cs ...veun.AsView) *Element {
-	switch len(cs) {
-	case 0:
-		e.content = nil
-	case 1:
-		e.content = cs[0]
-	default:
-		e.content = veun.Views(cs)
+func newElementWithChildren(t string, ps []Param) element[nodeChildren] {
+	e := element[nodeChildren]{tag: tag{name: t}}
+	for _, p := range ps {
+		p.applyToElement(&e)
 	}
 
 	return e
 }
 
-// InnerText sets the content to be html escaped text.
-func (e *Element) InnerText(t string) *Element {
-	return e.Content(Text(t))
-}
+func newVoidElement(t string, ps []VoidParam) element[void] {
+	e := element[void]{tag: tag{name: t}}
+	for _, p := range ps {
+		p.applyToVoidElement(&e)
+	}
 
-// In encloses the current element in a parent, returning
-// the parent.
-func (e *Element) In(parent *Element) *Element {
-	return parent.Content(e)
-}
-
-func openingTag(name string, a Attrs) string {
-	var sb strings.Builder
-
-	sb.WriteString("<")
-	sb.WriteString(name)
-	a.writeTo(&sb)
-	sb.WriteString(">")
-
-	return sb.String()
-}
-
-func closingTag(name string) string {
-	return "</" + name + ">"
+	return e
 }

@@ -7,18 +7,19 @@ import (
 	"github.com/stanistan/veun"
 )
 
-// Text creates a HTML escaped text view.
-func Text(in string) veun.AsView { //nolint:ireturn
-	return text(template.HTMLEscapeString(in))
+// Text represents any text that should be HTML escaped.
+type Text string
+
+func (t Text) applyToElement(e *element[nodeChildren]) {
+	e.inner = append(e.inner, t)
 }
 
-type text string
-
-//nolint:gosec
-func (t text) AsHTML(_ context.Context) (template.HTML, error) {
-	return template.HTML(t), nil
+// AsHTML implements [veun.HTMLRenderable] for [Text].
+func (t Text) AsHTML(_ context.Context) (template.HTML, error) {
+	return template.HTML(template.HTMLEscapeString(string(t))), nil //nolint:gosec
 }
 
-func (t text) View(_ context.Context) (*veun.View, error) {
+// View implements [veun.AsView] for [Text].
+func (t Text) View(_ context.Context) (*veun.View, error) {
 	return veun.V(t), nil
 }
