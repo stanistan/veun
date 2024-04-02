@@ -9,15 +9,15 @@ import "net/http"
 //	http.Handle("/", OnlyRoot(...))
 //
 // It will 404 for anything else.
-var OnlyRoot = MatchesPath(func(path string) bool {
-	return path == "/"
-})
+func OnlyRoot(next http.Handler) http.Handler {
+	return MatchesPath(func(path string) bool { return path == "/" })(next)
+}
 
 // ExceptRoot will apply the provided handler on everything
 // except the root path.
-var ExceptRoot = MatchesPath(func(path string) bool {
-	return path != "/"
-})
+func ExceptRoot(next http.Handler) http.Handler {
+	return MatchesPath(func(path string) bool { return path != "/" })(next)
+}
 
 func MatchesPath(matches func(string) bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {

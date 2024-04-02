@@ -1,6 +1,6 @@
 package el
 
-import "github.com/stanistan/veun"
+import "github.com/stanistan/veun/internal/view"
 
 // Param represents a parameter to a non-void HTML element,
 // it can be a mutation to the attributes, or children.
@@ -12,6 +12,8 @@ import "github.com/stanistan/veun"
 type Param interface {
 	applyToElement(e *element[nodeChildren])
 }
+
+type Component = Param
 
 // VoidParam represents a parameter to a void html element,
 // such as [Br], [Hr], etc.
@@ -52,7 +54,7 @@ func (v VoidFragment) applyToVoidElement(e *element[void]) {
 
 // Content is a group of [veun.AsView] it can also be applied to a
 // non-void HTML element, such as [Div].
-type Content []veun.AsView
+type Content []view.AsView
 
 func (v Content) applyToElement(e *element[nodeChildren]) {
 	e.inner = append(e.inner, v...)

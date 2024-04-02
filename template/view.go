@@ -7,7 +7,7 @@ import (
 	"html/template"
 	tt "text/template"
 
-	"github.com/stanistan/veun"
+	"github.com/stanistan/veun/internal/view"
 )
 
 // T is an alias for the Template type.
@@ -23,7 +23,7 @@ type Template struct {
 	Data  any
 }
 
-var _ veun.HTMLRenderable = Template{}
+var _ view.HTMLRenderable = Template{}
 
 // AsHTML fulfills [veun.AsRenderable] for [Template].
 //

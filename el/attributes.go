@@ -91,6 +91,11 @@ func Class(names ...string) AttrFunc {
 	})
 }
 
+// ID is the ID attribute.
+func ID(id string) Attr {
+	return Attr{Key: "id", Value: id}
+}
+
 // Href creates an href [Attr] with the given value.
 func Href(href string) Attr {
 	return Attr{Key: "href", Value: href}

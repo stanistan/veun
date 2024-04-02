@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/stanistan/veun"
+	"github.com/stanistan/veun/internal/view"
 	"github.com/stanistan/veun/vhttp/request"
 )
 
@@ -35,21 +35,21 @@ type Option func(h *handler)
 // and HandlerFunc.
 //
 // This can change the default error handling behavior of the handler.
-func WithErrorHandler(eh veun.ErrorHandler) Option {
+func WithErrorHandler(eh view.ErrorHandler) Option {
 	return func(h *handler) {
 		h.ErrorHandler = eh
 	}
 }
 
 // WithErrorHandlerFunc is the same as WithErrorHandler.
-func WithErrorHandlerFunc(eh veun.ErrorHandlerFunc) Option {
+func WithErrorHandlerFunc(eh view.ErrorHandlerFunc) Option {
 	return WithErrorHandler(eh)
 }
 
 // handler implements http.Handler for a request.Handler.
 type handler struct {
 	RequestHandler request.Handler
-	ErrorHandler   veun.ErrorHandler
+	ErrorHandler   view.ErrorHandler
 }
 
 // ServeHTTP implements http.Handler.
@@ -61,7 +61,7 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	html, err := veun.Render(r.Context(), v)
+	html, err := view.Render(r.Context(), v)
 	if err != nil {
 		h.handleError(r.Context(), w, err)
 
@@ -81,7 +81,7 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (h handler) handleError(ctx context.Context, w http.ResponseWriter, err error) {
 	// N.B. if we successfully executed our error handler
 	// and had some actual html output, we write/execute it.
-	html, rErr := veun.RenderError(ctx, h.ErrorHandler, err)
+	html, rErr := view.RenderError(ctx, h.ErrorHandler, err)
 	if rErr == nil && len(html) > 0 {
 		w.WriteHeader(errorCode)
 		_, _ = w.Write([]byte(html))

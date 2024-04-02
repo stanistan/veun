@@ -7,13 +7,14 @@ import (
 	"testing"
 
 	"github.com/alecthomas/assert/v2"
-
 	"github.com/stanistan/veun"
 	"github.com/stanistan/veun/el"
 )
 
+//nolint:funlen
 func TestElementExpRender(t *testing.T) {
 	t.Parallel()
+
 	for idx, testCase := range []struct {
 		in  veun.AsView
 		out string
@@ -82,11 +83,14 @@ func TestElementExpRender(t *testing.T) {
 		},
 	} {
 		testCase := testCase
+
 		t.Run(fmt.Sprintf("test i-%d", idx), func(t *testing.T) {
 			t.Parallel()
+
 			out, err := veun.Render(context.Background(), testCase.in)
+
 			assert.NoError(t, err)
-			assert.Equal(t, template.HTML(testCase.out), out)
+			assert.Equal(t, template.HTML(testCase.out), out) //nolint:gosec
 		})
 	}
 }

@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"html/template"
 
-	"github.com/stanistan/veun"
+	"github.com/stanistan/veun/internal/view"
 )
 
 // Slots are a mapping from a string name to a "slot".
-type Slots map[string]veun.AsView
+type Slots map[string]view.AsView
 
 func (s Slots) renderSlot(ctx context.Context) func(string) (HTML, error) {
 	return func(name string) (HTML, error) {
-		out, err := veun.Render(ctx, s[name])
+		out, err := view.Render(ctx, s[name])
 		if err != nil {
 			return out, fmt.Errorf("slot '%s': %w", name, err)
 		}

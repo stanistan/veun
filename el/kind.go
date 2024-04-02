@@ -2,24 +2,29 @@ package el
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 
-	"github.com/stanistan/veun"
+	"github.com/stanistan/veun/internal/view"
 )
 
 type elementKind interface {
 	AsHTML(ctx context.Context, tag tag) (template.HTML, error)
 }
 
-type nodeChildren []veun.AsView
+type nodeChildren []view.AsView
 
 func (e nodeChildren) AsHTML(ctx context.Context, tag tag) (template.HTML, error) {
-	content, err := veun.Render(ctx, veun.Views(e))
+	content, err := view.Render(ctx, view.Views(e))
 	if err != nil {
-		return content, err
+		return content, fmt.Errorf("nodechildren: %w", err)
 	}
 
 	return tag.opening() + content + tag.closing(), nil
+}
+
+func (e *nodeChildren) push(view view.AsView) {
+	*e = append(*e, view)
 }
 
 type void struct{}

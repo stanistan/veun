@@ -4,27 +4,27 @@ package veun
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"html/template"
+
+	"github.com/stanistan/veun/internal/view"
 )
 
-// AsV is an alias for the AsView interface.
-type AsV = AsView
+type (
+	View   = view.View
+	AsView = view.AsView
+	AsV    = view.AsView
+)
 
-// HTMLRenderable represents anything that can be rendered to [template.HTML].
-type HTMLRenderable interface {
-	AsHTML(ctx context.Context) (template.HTML, error)
-}
-
-// AsView is anything that can be represented as a [*View].
-type AsView interface {
-	View(ctx context.Context) (*View, error)
-}
+type (
+	Raw   = view.Raw
+	Views = view.Views
+)
 
 // Render renders a view tree into HTML given a context.
+//
+//nolint:wrapcheck
 func Render(ctx context.Context, v AsView) (template.HTML, error) {
-	return V(v).render(ctx)
+	return view.Render(ctx, v)
 }
 
 // V is a factory function that transforms any of its
@@ -35,26 +35,25 @@ func Render(ctx context.Context, v AsView) (template.HTML, error) {
 //
 // This is by design to allow for error handling during composition.
 func V(in any) *View {
-	if in == nil {
-		return nil
-	}
-
-	switch t := in.(type) {
-	case *View:
-		return t
-	case template.HTML:
-		return &View{r: Raw(t)}
-	case HTMLRenderable:
-		return &View{r: t}
-	case AsView:
-		return &View{r: renderable{t}}
-	}
-
-	return &View{
-		r: viewInvalidError{
-			Err: fmt.Errorf("invalid input %T: %w", in, errInvalidVParam),
-		},
-	}
+	return view.V(in)
 }
 
-var errInvalidVParam = errors.New("can't consturct View")
+// AsViews transforms a slice of T (implementing AsView) into Views.
+func AsViews[T AsView](ts []T) Views {
+	vs := make(Views, len(ts))
+	for idx, v := range ts {
+		vs[idx] = v
+	}
+
+	return vs
+}
+
+// MapToViews transforms a slice of T (any) with a function into Views.
+func MapToViews[T any, V AsView](ts []T, f func(T) V) Views {
+	vs := make(Views, len(ts))
+	for idx, v := range ts {
+		vs[idx] = f(v)
+	}
+
+	return vs
+}

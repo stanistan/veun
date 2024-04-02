@@ -3,6 +3,7 @@ Area;void
 Article
 Aside
 Base;void
+Button
 Body
 Br;void
 Caption
