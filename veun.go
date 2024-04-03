@@ -20,6 +20,11 @@ type (
 	Views = view.Views
 )
 
+type (
+	ErrorHandler     = view.ErrorHandler
+	ErrorHandlerFunc = view.ErrorHandlerFunc
+)
+
 // Render renders a view tree into HTML given a context.
 //
 //nolint:wrapcheck
