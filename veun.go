@@ -32,14 +32,8 @@ func Render(ctx context.Context, v AsView) (template.HTML, error) {
 	return view.Render(ctx, v)
 }
 
-// V is a factory function that transforms any of its
-// inputs into a [View].
-//
-// If this is not view convertible, this call will succeed,
-// but any call to [Render] will fail.
-//
-// This is by design to allow for error handling during composition.
-func V(in any) *View {
+// V is a factory function that transforms an [AsView] into a [*View].
+func V(in AsView) *View {
 	return view.V(in)
 }
 

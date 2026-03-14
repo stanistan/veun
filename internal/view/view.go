@@ -2,7 +2,6 @@ package view
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"html/template"
 )
@@ -63,18 +62,6 @@ func (r *View) render(ctx context.Context) (template.HTML, error) {
 	return out, nil
 }
 
-type viewInvalidError struct {
-	Err error
-}
-
-func (e viewInvalidError) Error() string {
-	return e.Err.Error()
-}
-
-func (e viewInvalidError) AsHTML(_ context.Context) (template.HTML, error) {
-	return template.HTML(""), e
-}
-
 type renderable struct {
 	r AsView
 }
@@ -99,14 +86,8 @@ func (r renderable) AsHTML(ctx context.Context) (template.HTML, error) {
 	return out, nil
 }
 
-// V is a factory function that transforms any of its
-// inputs into a [View].
-//
-// If this is not view convertible, this call will succeed,
-// but any call to [Render] will fail.
-//
-// This is by design to allow for error handling during composition.
-func V(in any) *View {
+// V is a factory function that transforms an [AsView] into a [*View].
+func V(in AsView) *View {
 	if in == nil {
 		return nil
 	}
@@ -114,22 +95,12 @@ func V(in any) *View {
 	switch t := in.(type) {
 	case *View:
 		return t
-	case template.HTML:
-		return &View{r: Raw(t)}
 	case HTMLRenderable:
 		return &View{r: t}
-	case AsView:
-		return &View{r: renderable{t}}
 	}
 
-	return &View{
-		r: viewInvalidError{
-			Err: fmt.Errorf("invalid input %T: %w", in, errInvalidVParam),
-		},
-	}
+	return &View{r: renderable{in}}
 }
-
-var errInvalidVParam = errors.New("can't construct View")
 
 // RenderError renders an error given an ErrorHandler.
 func RenderError(ctx context.Context, h ErrorHandler, err error) (template.HTML, error) {

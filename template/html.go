@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+
+	"github.com/stanistan/veun/internal/view"
 )
 
 // ErrNilTemplate is an error for when there is no
@@ -17,6 +19,9 @@ type HTMLTemplate struct {
 	Tpl  *template.Template
 	Data any
 }
+
+// View implements [view.AsView] for [HTMLTemplate].
+func (v HTMLTemplate) View(_ context.Context) (*view.View, error) { return view.V(v), nil }
 
 // AsHTML transforms a HTMLTemplate into html.
 //

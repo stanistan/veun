@@ -16,7 +16,7 @@ type T = Template
 // Template represents a template with slots
 // that can be rendered as HTML.
 //
-// Template fulfills the [veun.HTMLRenderable] interface.
+// Template fulfills both the [veun.HTMLRenderable] and [veun.AsView] interfaces.
 type Template struct {
 	Tpl   *template.Template
 	Slots Slots
@@ -24,6 +24,10 @@ type Template struct {
 }
 
 var _ view.HTMLRenderable = Template{}
+var _ view.AsView = Template{}
+
+// View implements [view.AsView] for [Template].
+func (v Template) View(_ context.Context) (*view.View, error) { return view.V(v), nil }
 
 // AsHTML fulfills [veun.AsRenderable] for [Template].
 //
