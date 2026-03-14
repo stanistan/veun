@@ -72,9 +72,8 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
 	}
 
-	_, err = w.Write([]byte(html))
-	if err != nil {
-		panic(err)
+	if _, err = w.Write([]byte(html)); err != nil {
+		slog.Error("veun write error", "err", err)
 	}
 }
 
