@@ -2,6 +2,7 @@ package el
 
 import (
 	"html/template"
+	"sort"
 	"strings"
 )
 
@@ -17,11 +18,18 @@ type Attrs map[string]string
 func (a Attrs) render() string {
 	var w strings.Builder
 
-	for k, v := range a {
+	keys := make([]string, 0, len(a))
+	for k := range a {
+		keys = append(keys, k)
+	}
+
+	sort.Strings(keys)
+
+	for _, k := range keys {
 		_, _ = w.WriteString(" ")
 		template.HTMLEscape(&w, []byte(k))
 		_, _ = w.WriteString(`="`)
-		template.HTMLEscape(&w, []byte(v))
+		template.HTMLEscape(&w, []byte(a[k]))
 		_, _ = w.WriteString(`"`)
 	}
 

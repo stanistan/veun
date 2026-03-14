@@ -129,7 +129,7 @@ func V(in any) *View {
 	}
 }
 
-var errInvalidVParam = errors.New("can't consturct View")
+var errInvalidVParam = errors.New("can't construct View")
 
 // RenderError renders an error given an ErrorHandler.
 func RenderError(ctx context.Context, h ErrorHandler, err error) (template.HTML, error) {
