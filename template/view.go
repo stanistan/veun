@@ -23,8 +23,10 @@ type Template struct {
 	Data  any
 }
 
-var _ view.HTMLRenderable = Template{}
-var _ view.AsView = Template{}
+var (
+	_ view.HTMLRenderable = Template{}
+	_ view.AsView         = Template{}
+)
 
 // View implements [view.AsView] for [Template].
 func (v Template) View(_ context.Context) (*view.View, error) { return view.V(v), nil }
