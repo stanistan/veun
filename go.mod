@@ -1,6 +1,6 @@
 module github.com/stanistan/veun
 
-go 1.21.4
+go 1.24
 
 require github.com/alecthomas/assert/v2 v2.4.0
 
